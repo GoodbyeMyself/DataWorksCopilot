@@ -678,6 +678,55 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
             }),
         );
 
+        disposables.push(
+            editorRef.current.addAction({
+                id: "Generate-annotations",
+                label: "生成注释",
+                keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
+                contextMenuGroupId: "0_Copolit",
+                contextMenuOrder: 1,
+                run: (editor) => {
+                    console.log(editor, "<- 生成注释");
+                },
+            }),
+        );
+
+        disposables.push(
+            editorRef.current.addAction({
+                id: "Generate-SQL",
+                label: "SQL 生成",
+                contextMenuGroupId: "0_Copolit",
+                contextMenuOrder: 2,
+                run: (editor) => {
+                    console.log(editor, "<- SQL 生成");
+                },
+            }),
+        );
+
+        disposables.push(
+            editorRef.current.addAction({
+                id: "SQL-Error-Correction",
+                label: "SQL 纠错",
+                contextMenuGroupId: "0_Copolit",
+                contextMenuOrder: 2,
+                run: (editor) => {
+                    console.log(editor, "<- SQL 纠错");
+                },
+            }),
+        );
+
+        disposables.push(
+            editorRef.current.addAction({
+                id: "SQL-Rewriting",
+                label: "SQL 改写",
+                contextMenuGroupId: "0_Copolit",
+                contextMenuOrder: 2,
+                run: (editor) => {
+                    console.log(editor, "<- SQL 改写");
+                },
+            }),
+        );
+
         return () => {
             // biome-ignore lint/complexity/noForEach: <explanation>
             disposables.forEach((disposable) => disposable.dispose());
