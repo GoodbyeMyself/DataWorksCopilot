@@ -36,31 +36,10 @@ export const links: LinksFunction = () => {
     ];
     return [
         {
-            rel: "apple-touch-icon",
-            sizes: "180x180",
-            href: "/apple-touch-icon.png",
-        },
-        {
             rel: "icon",
-            type: "image/png",
-            sizes: "32x32",
-            href: "/favicon-32x32.png",
-        },
-        {
-            rel: "icon",
-            type: "image/png",
+            type: "image/ico",
             sizes: "16x16",
-            href: "/favicon-16x16.png",
-        },
-        {
-            rel: "mask-icon",
-            href: "/safari-pinned-tab.svg",
-            color: "#fb7f44",
-        },
-        {
-            rel: "manifest",
-            href: "/site.webmanifest",
-            crossOrigin: "use-credentials",
+            href: "/favicon.ico",
         },
         { rel: "stylesheet", href: styles },
         ...preloadedFonts.map((font) => ({

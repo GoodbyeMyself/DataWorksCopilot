@@ -4,10 +4,13 @@ import {
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
+
 import type { MetaFunction } from "@vercel/remix";
+
 import { wrap } from "comlink";
 import { Loader2 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
+
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -17,14 +20,23 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+
 import { metaDetails } from "~/constants";
+
 import { DbProvider } from "~/context/db/provider";
+
 import { EditorSettingsProvider } from "~/context/editor-settings/provider";
+
 import { EditorProvider } from "~/context/editor/provider";
+
 import { PanelProvider } from "~/context/panel/provider";
+
 import { QueryProvider } from "~/context/query/provider";
+
 import { SessionProvider } from "~/context/session/provider";
+
 import NavBar from "./components/navbar";
+
 import type { IsSupportedWorker } from "./workers/is-supported.worker";
 
 /**
@@ -68,18 +80,6 @@ export const meta: MetaFunction = () => {
         {
             name: "description",
             content: metaDetails.description,
-        },
-        {
-            name: "og:description",
-            content: metaDetails.description,
-        },
-        {
-            name: "og:title",
-            content: "DataWorks Copilot",
-        },
-        {
-            name: "og:url",
-            content: "---",
         },
     ];
 };

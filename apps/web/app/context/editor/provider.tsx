@@ -10,27 +10,27 @@ type EditorProviderProps = { children: React.ReactNode };
  * Context provider for monaco editor instance.
  */
 function EditorProvider(props: EditorProviderProps) {
-  const editorRef = useRef<EditorForwardedRef | null>(null);
+    const editorRef = useRef<EditorForwardedRef | null>(null);
 
-  // cleanup
-  useEffect(() => {
-    const editor = editorRef.current?.getEditor();
-    return () => {
-      editor?.dispose();
-    };
-  }, []);
+    // cleanup
+    useEffect(() => {
+        const editor = editorRef.current?.getEditor();
+        return () => {
+            editor?.dispose();
+        };
+    }, []);
 
-  const value = useMemo(
-    () => ({
-      editorRef,
-    }),
-    [],
-  );
-  return (
-    <EditorContext.Provider value={value}>
-      {props.children}
-    </EditorContext.Provider>
-  );
+    const value = useMemo(
+        () => ({
+            editorRef,
+        }),
+        [],
+    );
+    return (
+        <EditorContext.Provider value={value}>
+            {props.children}
+        </EditorContext.Provider>
+    );
 }
 
 export { EditorProvider };
