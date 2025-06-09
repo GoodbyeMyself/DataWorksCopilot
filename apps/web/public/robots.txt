@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://quackdb.com/sitemap.xml

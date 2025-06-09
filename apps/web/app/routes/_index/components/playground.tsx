@@ -6,15 +6,17 @@ import {
 } from "react-resizable-panels";
 import PanelHandle from "~/components/panel-handle";
 
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { FolderClosed, FolderOpen } from "lucide-react";
 import ModeToggle from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { useFileDrop } from "~/context/session/hooks/useAddFile.tsx";
 import { cn } from "~/lib/utils";
-import AboutModal from "./about";
 import EditorPanel from "./editor-panel";
 import Sidepanel from "./sidepanel";
+
+// 关于弹窗
+// import AboutModal from "./about";
+
 
 export default function Playground() {
   const sidepanelRef = useRef<ImperativePanelHandle>(null);
@@ -100,23 +102,7 @@ function SidebarLinks() {
   return (
     <div className="flex h-full flex-col items-center justify-end gap-2 pb-6">
       <ModeToggle />
-      <Button
-        asChild
-        size="icon"
-        variant="outline"
-      >
-        <a
-          target="_blank"
-          href="https://github.com/mattf96s/QuackDB"
-          rel="noreferrer"
-        >
-          <GitHubLogoIcon
-            name="github"
-            className="size-5"
-          />
-        </a>
-      </Button>
-      <AboutModal />
+      {/* <AboutModal /> */}
     </div>
   );
 }

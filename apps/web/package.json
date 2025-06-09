@@ -1,6 +1,6 @@
 {
   "name": "web",
-  "description": "QuackDB - An online DuckDB SQL playground and editor",
+  "description": "DataWorks Copilot - An online SQL playground and editor",
   "private": true,
   "sideEffects": false,
   "type": "module",

@@ -23,16 +23,3 @@
 //   const url = shareURL(code);
 //   return `[SWC AST Viewer](${url})`;
 // }
-
-// export function reportIssue(code: string): string {
-//   const reportUrl = new URL(
-//     `https://github.com/mattf96s/QuackDB/issues/new?labels=C-bug&template=bug_report.yml`,
-//   );
-
-//   const link = shareMarkdown(code);
-
-//   reportUrl.searchParams.set("code", code);
-//   reportUrl.searchParams.set("repro-link", link);
-
-//   return reportUrl.toString();
-// }

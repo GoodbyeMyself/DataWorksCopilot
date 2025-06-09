@@ -1,21 +1,21 @@
 import {
-  type ClientLoaderFunctionArgs,
-  isRouteErrorResponse,
-  useLoaderData,
-  useRouteError,
+    type ClientLoaderFunctionArgs,
+    isRouteErrorResponse,
+    useLoaderData,
+    useRouteError,
 } from "@remix-run/react";
 import type { MetaFunction } from "@vercel/remix";
 import { wrap } from "comlink";
 import { Loader2 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { metaDetails } from "~/constants";
 import { DbProvider } from "~/context/db/provider";
@@ -32,167 +32,172 @@ import type { IsSupportedWorker } from "./workers/is-supported.worker";
  * This loader checks if the browser can transfer file system file handles.
  */
 export async function clientLoader(_props: ClientLoaderFunctionArgs) {
-  // check if filesystemfilehandle can be sent in postMessage. There is a Safari bug.
-  let canCloneHandle = false;
-  let worker: Worker | undefined;
-  try {
-    worker = new Worker(
-      new URL("./workers/is-supported.worker.ts", import.meta.url),
-      {
-        type: "module",
-        name: "is-supported-worker",
-      },
-    );
-    const fn = wrap<IsSupportedWorker>(worker);
-    canCloneHandle = await fn();
-  } catch (e) {
-    canCloneHandle = false;
-  } finally {
-    worker?.terminate();
-  }
+    // check if filesystemfilehandle can be sent in postMessage. There is a Safari bug.
+    let canCloneHandle = false;
+    let worker: Worker | undefined;
+    try {
+        worker = new Worker(
+            new URL("./workers/is-supported.worker.ts", import.meta.url),
+            {
+                type: "module",
+                name: "is-supported-worker",
+            },
+        );
+        const fn = wrap<IsSupportedWorker>(worker);
+        canCloneHandle = await fn();
+    } catch (e) {
+        canCloneHandle = false;
+    } finally {
+        worker?.terminate();
+    }
 
-  return {
-    canCloneHandle,
-  };
+    return {
+        canCloneHandle,
+    };
 }
 
 export function HydrateFallback() {
-  return <PlaygroundSkeleton />;
+    return <PlaygroundSkeleton />;
 }
 
 export const meta: MetaFunction = () => {
-  return [
-    {
-      title: "Playground | QuackDB",
-    },
-    {
-      name: "description",
-      content: metaDetails.description,
-    },
-    {
-      name: "og:description",
-      content: metaDetails.description,
-    },
-    {
-      name: "og:title",
-      content: "Playground | QuackDB",
-    },
-    {
-      name: "og:url",
-      content: "https://www.quackdb.com/",
-    },
-  ];
+    return [
+        {
+            title: "DataWorks Copilot",
+        },
+        {
+            name: "description",
+            content: metaDetails.description,
+        },
+        {
+            name: "og:description",
+            content: metaDetails.description,
+        },
+        {
+            name: "og:title",
+            content: "DataWorks Copilot",
+        },
+        {
+            name: "og:url",
+            content: "---",
+        },
+    ];
 };
 
 const LazyPlayground = lazy(() =>
-  import("./components/playground").then((module) => ({
-    default: module.default,
-  })),
+    import("./components/playground").then((module) => ({
+        default: module.default,
+    })),
 );
 
 export default function Component() {
-  const data = useLoaderData<typeof clientLoader>();
+    const data = useLoaderData<typeof clientLoader>();
 
-  return (
-    <div className="flex size-full flex-col">
-      {!data.canCloneHandle && <NotSupportedModal />}
-      <Suspense fallback={<PlaygroundSkeleton />}>
-        <SessionProvider>
-          <DbProvider>
-            <PanelProvider>
-              <QueryProvider>
-                <EditorSettingsProvider>
-                  <EditorProvider>
-                    <NavBar />
-                    <Suspense fallback={<PlaygroundSkeleton />}>
-                      <LazyPlayground />
-                    </Suspense>
-                  </EditorProvider>
-                </EditorSettingsProvider>
-              </QueryProvider>
-            </PanelProvider>
-          </DbProvider>
-        </SessionProvider>
-      </Suspense>
-    </div>
-  );
+    return (
+        <div className="flex size-full flex-col">
+            {!data.canCloneHandle && <NotSupportedModal />}
+            <Suspense fallback={<PlaygroundSkeleton />}>
+                <SessionProvider>
+                    <DbProvider>
+                        <PanelProvider>
+                            <QueryProvider>
+                                <EditorSettingsProvider>
+                                    <EditorProvider>
+                                        <NavBar />
+                                        <Suspense
+                                            fallback={<PlaygroundSkeleton />}
+                                        >
+                                            <LazyPlayground />
+                                        </Suspense>
+                                    </EditorProvider>
+                                </EditorSettingsProvider>
+                            </QueryProvider>
+                        </PanelProvider>
+                    </DbProvider>
+                </SessionProvider>
+            </Suspense>
+        </div>
+    );
 }
 
 function PlaygroundSkeleton() {
-  return (
-    <div className="flex size-full items-center justify-center bg-background">
-      <Loader2
-        name="loader-circle"
-        className="size-6 animate-spin"
-      />
-    </div>
-  );
+    return (
+        <div className="flex size-full items-center justify-center bg-background">
+            <Loader2
+                name="loader-circle"
+                className="size-6 animate-spin"
+            />
+        </div>
+    );
 }
 
 function NotSupportedModal() {
-  const [open, setOpen] = useState(true);
-  return (
-    <>
-      {!open && (
-        <div className="bg-destructive p-2 text-center text-white">
-          <p>
-            Your browser does not support transferring file system file handles.
-            <br />
-          </p>
-        </div>
-      )}
-      <AlertDialog
-        open={open}
-        onOpenChange={setOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Browser Not Supported</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your browser does not support{" "}
-              <a
-                target="_blank"
-                href="https://bugs.webkit.org/show_bug.cgi?id=256712#c0"
-                rel="noreferrer"
-                className="underline"
-              >
-                transferring file system file handles
-              </a>
-              .
-              <br />
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
+    const [open, setOpen] = useState(true);
+    return (
+        <>
+            {!open && (
+                <div className="bg-destructive p-2 text-center text-white">
+                    <p>
+                        Your browser does not support transferring file system
+                        file handles.
+                        <br />
+                    </p>
+                </div>
+            )}
+            <AlertDialog
+                open={open}
+                onOpenChange={setOpen}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Browser Not Supported
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Your browser does not support{" "}
+                            <a
+                                target="_blank"
+                                href="https://bugs.webkit.org/show_bug.cgi?id=256712#c0"
+                                rel="noreferrer"
+                                className="underline"
+                            >
+                                transferring file system file handles
+                            </a>
+                            .
+                            <br />
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
+    );
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
+    const error = useRouteError();
 
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>
-          {error.status} {error.statusText}
-        </h1>
-        <p>{error.data}</p>
-      </div>
-    );
-  } else if (error instanceof Error) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{error.message}</p>
-        <p>The stack trace is:</p>
-        <pre>{error.stack}</pre>
-      </div>
-    );
-  } else {
-    return <h1>Unknown Error</h1>;
-  }
+    if (isRouteErrorResponse(error)) {
+        return (
+            <div>
+                <h1>
+                    {error.status} {error.statusText}
+                </h1>
+                <p>{error.data}</p>
+            </div>
+        );
+    } else if (error instanceof Error) {
+        return (
+            <div>
+                <h1>Error</h1>
+                <p>{error.message}</p>
+                <p>The stack trace is:</p>
+                <pre>{error.stack}</pre>
+            </div>
+        );
+    } else {
+        return <h1>Unknown Error</h1>;
+    }
 }
