@@ -1,6 +1,15 @@
 import { PopoverAnchor, PopoverTrigger } from "@radix-ui/react-popover";
 
-import { ChevronDown, Code, Dot, Loader2, Plus } from "lucide-react";
+import {
+    ChevronDown,
+    Code,
+    Dot,
+    FolderPen,
+    Loader2,
+    PanelLeftOpen,
+    Plus,
+    Trash2,
+} from "lucide-react";
 
 import { useState } from "react";
 
@@ -122,19 +131,18 @@ function DeleteEditorModal(props: DeleteModalProps) {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>
-                        Are you absolutely sure?
+                        确定要删除所选 SQL 文件吗 ？
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the file.
+                        此操作无法撤销, 这将永久删除该 SQL 文件
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>取消</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={async () => await onDeleteEditor(path)}
                     >
-                        Continue
+                        确认
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -210,22 +218,23 @@ function CodeEditorItem(editor: CodeEditor) {
                         inset
                         onSelect={() => onOpenFile()}
                     >
-                        打开
+                        <PanelLeftOpen size={16} />
+                        <span className="ml-2">打开</span>
                     </ContextMenuItem>
-
                     <ContextMenuItem
                         onSelect={() => setIsEditing(true)}
                         inset
                     >
-                        重命名
+                        <FolderPen size={16} />
+                        <span className="ml-2">重命名</span>
                     </ContextMenuItem>
-
                     <ContextMenuSeparator />
                     <ContextMenuItem
                         onSelect={() => setShowDelete(true)}
                         inset
                     >
-                        删除
+                        <Trash2 size={16} />
+                        <span className="ml-2">删除</span>
                     </ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>

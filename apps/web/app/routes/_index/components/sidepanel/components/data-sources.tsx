@@ -1,10 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, CopyCheck, Database, Plus } from "lucide-react";
+
+// icon
+import {
+    ArrowDownToDot,
+    ChevronDown,
+    CopyCheck,
+    Database,
+    FileDown,
+    Plus,
+    ShieldEllipsis,
+    Trash2,
+} from "lucide-react";
+
 import { useCallback, useState, type ReactNode } from "react";
+
 import { useForm } from "react-hook-form";
+
 import { toast } from "sonner";
+
 import { z } from "zod";
-import { Tag } from "~/components/tag";
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -77,7 +92,7 @@ export default function DataSources() {
 
     return (
         <div className="flex w-full flex-col">
-            <div className="flex w-full items-center justify-between">
+            <div className="sticky top-0 z-10 flex w-full items-center justify-between bg-background">
                 <div className="flex grow">
                     <Button
                         onClick={onToggle}
@@ -101,7 +116,7 @@ export default function DataSources() {
             </div>
             <div
                 className={cn(
-                    "flex w-full flex-col space-y-1 py-1 pl-4 pr-8",
+                    "flex max-h-[calc(100vh-200px)] w-full flex-col space-y-1 overflow-y-auto py-1 pl-4 pr-8",
                     isCollapsed && "hidden",
                 )}
             >
@@ -255,37 +270,32 @@ function DatesetItem(props: SourceEntry) {
                         </div>
                     </Button>
                 </ContextMenuTrigger>
-                <ContextMenuContent className="w-64">
+                <ContextMenuContent className="w-40">
                     <ContextMenuItem
                         inset
                         onSelect={onCopy}
                     >
-                        Insert Table SQL
+                        <ArrowDownToDot size={16} />
+                        <span className="ml-2">插入表 SQL</span>
                     </ContextMenuItem>
-                    <ContextMenuItem
-                        inset
-                        disabled
-                    >
-                        <span className="mr-2">Explore Data</span>
-                        <Tag
-                            color="sky"
-                            variant="small"
-                        >
-                            soon
-                        </Tag>
+                    <ContextMenuItem inset>
+                        <ShieldEllipsis size={16} />
+                        <span className="ml-2">数据探查</span>
                     </ContextMenuItem>
                     <ContextMenuItem
                         inset
                         onSelect={onDownloadHandler}
                     >
-                        Download
+                        <FileDown size={16} />
+                        <span className="ml-2">下载</span>
                     </ContextMenuItem>
                     <ContextMenuSeparator />
                     <ContextMenuItem
                         inset
                         onSelect={() => setShowDelete(true)}
                     >
-                        Delete
+                        <Trash2 size={16} />
+                        <span className="ml-2">删除</span>
                     </ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>
@@ -320,19 +330,18 @@ function DeleteEditorModal(props: DeleteModalProps) {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>
-                        Are you absolutely sure?
+                        确定要删除所选数据源吗 ？
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the file.
+                        此操作无法撤销, 这将永久删除该数据源
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>取消</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={async () => await onDeleteDataSource(path)}
                     >
-                        Continue
+                        确认
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -475,25 +484,16 @@ function SourcesToolbar() {
                     // prevent focus going back to the trigger on close.
                     onCloseAutoFocus={(e) => e.preventDefault()}
                 >
-                    <DropdownMenuLabel>Add data source</DropdownMenuLabel>
+                    <DropdownMenuLabel>新增数据源</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                         <DropdownMenuItem onSelect={onAddFiles}>
-                            Local file
+                            本地文件
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => setShowAddDataModal("REMOTE")}
                         >
-                            Remote URL
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            disabled
-                            onClick={() => setShowAddDataModal("PASTE")}
-                        >
-                            Paste
-                            <span className="ml-2 rounded-full border border-gray-500 bg-transparent px-2.5 py-0.5 text-xs font-semibold text-gray-500">
-                                soon
-                            </span>
+                            远程 URL
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -584,10 +584,8 @@ function AddRemoteUrl(props: { onclose: () => void }) {
     return (
         <>
             <DialogHeader>
-                <DialogTitle>Add Remote Datasource</DialogTitle>
-                <DialogDescription>
-                    Add a datasource from a remote URL.
-                </DialogDescription>
+                <DialogTitle>添加远程数据源</DialogTitle>
+                <DialogDescription>从远程 URL 添加数据源 .</DialogDescription>
             </DialogHeader>
             <Form {...form}>
                 <form
@@ -608,9 +606,7 @@ function AddRemoteUrl(props: { onclose: () => void }) {
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormDescription>
-                                    A unique name for the datasource.
-                                </FormDescription>
+                                <FormDescription>数据源名称</FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -621,7 +617,7 @@ function AddRemoteUrl(props: { onclose: () => void }) {
                         name="url"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>URL</FormLabel>
+                                <FormLabel> URL</FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="https://api.datamuse.com/words?ml=sql"
@@ -632,14 +628,13 @@ function AddRemoteUrl(props: { onclose: () => void }) {
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    {`The API needs to support CORS. If it doesn't, you can use the
-                  "Paste" option.`}
+                                    该 API 需要支持跨域资源共享（CORS） .
                                 </FormDescription>
                             </FormItem>
                         )}
                     />
                     <div className="flex items-center justify-end">
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit">提交</Button>
                     </div>
                 </form>
             </Form>
