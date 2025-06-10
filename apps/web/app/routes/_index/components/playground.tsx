@@ -89,8 +89,8 @@ export default function Playground() {
                 <Panel
                     collapsedSize={0}
                     collapsible
-                    defaultSize={15}
-                    minSize={15}
+                    defaultSize={18}
+                    minSize={18}
                     className="max-h-full"
                     onCollapse={() => setExplorerIsOpen(false)}
                     onExpand={() => setExplorerIsOpen(true)}

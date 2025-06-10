@@ -280,8 +280,8 @@ function RenamePopover(props: RenamePopoverProps) {
 
         const validation = filenameSchema.safeParse(newName);
         if (!validation.success) {
-            toast.error("Invalid file name", {
-                description: "File name must end with .sql",
+            toast.error("文件名变更失败", {
+                description: "文件名必须以 .sql 结尾",
             });
             setIsLoading(false);
             return;
@@ -289,12 +289,12 @@ function RenamePopover(props: RenamePopoverProps) {
 
         try {
             await onRenameEditor(filename, newName);
-            toast.success("File renamed", {
-                description: `File ${filename} renamed to ${newName}`,
+            toast.success("文件名变更成功", {
+                description: `文件名从 ${filename} 变更到 ${newName}`,
             });
             onOpenChange(false);
         } catch (e) {
-            toast.error("Failed to rename file");
+            toast.error("重命名文件失败");
         } finally {
             setIsLoading(false);
         }
@@ -316,9 +316,9 @@ function RenamePopover(props: RenamePopoverProps) {
                 >
                     <div className="grid gap-4">
                         <div className="space-y-2">
-                            <h4 className="font-medium leading-none">Rename</h4>
+                            <h4 className="font-medium leading-none">重命名</h4>
                             <p className="text-sm text-muted-foreground">
-                                Include the file extension.
+                                包含文件扩展名.
                             </p>
                         </div>
                         <div className="grid gap-2">
@@ -327,7 +327,7 @@ function RenamePopover(props: RenamePopoverProps) {
                                     form="rename-form"
                                     htmlFor="file"
                                 >
-                                    File
+                                    文件名
                                 </Label>
                                 <Input
                                     id="file"
@@ -344,7 +344,7 @@ function RenamePopover(props: RenamePopoverProps) {
                             type="submit"
                             disabled={isLoading}
                         >
-                            Save changes
+                            保存变更
                             {isLoading && (
                                 <Loader2
                                     size={16}
