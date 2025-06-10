@@ -33,7 +33,7 @@ function EditorPanel({ copolitRef }: EditorPanelProps) {
             direction="vertical"
         >
             <Panel
-                minSize={10}
+                minSize={70}
                 className="flex flex-col"
             >
                 <OpenFileTabs />
@@ -49,7 +49,7 @@ function EditorPanel({ copolitRef }: EditorPanelProps) {
                     <DragHandleDots2Icon className="size-2.5" />
                 </div>
             </PanelResizeHandle>
-            <Panel minSize={10}>
+            <Panel minSize={30}>
                 <ResultsView />
             </Panel>
         </PanelGroup>

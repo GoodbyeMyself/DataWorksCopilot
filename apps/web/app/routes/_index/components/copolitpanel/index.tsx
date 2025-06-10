@@ -1,6 +1,8 @@
-import { X } from "lucide-react";
 import { type ImperativePanelHandle } from "react-resizable-panels";
+
 import { Button } from "~/components/ui/button";
+// icon
+import { History, Plus, X } from "lucide-react";
 
 type CopolitpanelProps = {
     isCollapsed: boolean;
@@ -20,18 +22,42 @@ export default function Sidepanel(props: CopolitpanelProps) {
 
     return (
         <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b p-2">
-                <span className="text-sm font-medium">Copolit</span>
+            <div className="flex items-center justify-end border-b p-1">
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-5 w-5"
                     onClick={() => {
                         copolitRef?.current?.collapse();
                     }}
                 >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                 </Button>
+            </div>
+            <div className="flex items-center justify-between border-b p-2">
+                <span className="text-sm font-medium">DataWorks Copilot</span>
+                <div className="flex items-center space-x-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        onClick={() => {
+                            copolitRef?.current?.collapse();
+                        }}
+                    >
+                        <Plus size={16} />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        onClick={() => {
+                            copolitRef?.current?.collapse();
+                        }}
+                    >
+                        <History size={16} />
+                    </Button>
+                </div>
             </div>
             <div className="flex-1 p-4">xxxx</div>
         </div>

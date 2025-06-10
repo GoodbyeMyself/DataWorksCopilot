@@ -13,7 +13,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+
 import { Button } from "~/components/ui/button";
+
 import {
     ContextMenu,
     ContextMenuContent,
@@ -21,12 +23,18 @@ import {
     ContextMenuSeparator,
     ContextMenuTrigger,
 } from "~/components/ui/context-menu";
+
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+
 import { Popover, PopoverContent } from "~/components/ui/popover";
+
 import type { CodeEditor } from "~/context/session/types";
+
 import { useSession } from "~/context/session/useSession";
+
 import { cn } from "~/lib/utils";
+
 import { useWrapper } from "./wrapper/context/useWrapper";
 
 export default function EditorSources() {
@@ -174,10 +182,11 @@ function CodeEditorItem(editor: CodeEditor) {
 
                             <span
                                 className={cn(
-                                    "truncate font-normal",
+                                    "max-w-[200px] overflow-hidden truncate text-ellipsis whitespace-nowrap font-normal",
                                     editor.isDirty &&
                                         "text-orange-500 dark:text-yellow-500",
                                 )}
+                                title={editor.path}
                             >
                                 {editor.path}
                             </span>
@@ -192,19 +201,19 @@ function CodeEditorItem(editor: CodeEditor) {
                         )}
                     </Button>
                 </ContextMenuTrigger>
-                <ContextMenuContent className="w-64">
+                <ContextMenuContent className="w-32">
                     <ContextMenuItem
                         inset
                         onSelect={() => onOpenFile()}
                     >
-                        Open
+                        打开
                     </ContextMenuItem>
 
                     <ContextMenuItem
                         onSelect={() => setIsEditing(true)}
                         inset
                     >
-                        Rename
+                        重命名
                     </ContextMenuItem>
 
                     <ContextMenuSeparator />
@@ -212,7 +221,7 @@ function CodeEditorItem(editor: CodeEditor) {
                         onSelect={() => setShowDelete(true)}
                         inset
                     >
-                        Delete
+                        删除
                     </ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>

@@ -37,7 +37,12 @@ export default function OpenFileTabs() {
                                 onClick={() => onOpenEditor(editor.path)}
                             >
                                 <Code2 className="mr-1 size-4" />
-                                <span className="text-sm">{editor.path}</span>
+                                <span
+                                    className="max-w-[120px] truncate text-sm"
+                                    title={editor.path}
+                                >
+                                    {editor.path}
+                                </span>
 
                                 <div
                                     role="button"
