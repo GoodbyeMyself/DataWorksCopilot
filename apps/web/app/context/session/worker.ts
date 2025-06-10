@@ -457,7 +457,13 @@ const onAddDataSource = async ({ entries, sessionId }: AddDataSourceBase) => {
 
 // --- Add new editor file -- //
 
+/**
+ * 添加新的编辑器文件
+ * @param sessionId - 会话ID
+ * @returns 返回创建的代码源对象或null（如果创建失败）
+ */
 const onAddEditor = async (sessionId: string) => {
+    // 发送开始添加编辑器的消息
     postMessage({
         type: "ADD_EDITOR_START",
         payload: {
@@ -466,40 +472,47 @@ const onAddEditor = async (sessionId: string) => {
     });
 
     try {
+        // 获取会话目录
         const directory = await getSessionDirectory(sessionId);
 
-        // find a unique name for the new file
+        console.log(directory, "<- 打印 directory");
+
+        // 为新文件寻找唯一名称
         let counter = 0;
-
         let path = "";
-
         let filename = "new-query.sql";
 
+        // 循环检查文件名是否已存在，如果存在则添加数字后缀
         while (true) {
             const exists = await directory
                 .getFileHandle(filename, { create: false })
                 .catch(() => null);
             if (!exists) break;
 
+            console.log(exists, "<- 打印 exists");
+
             counter++;
-
             path = `${"new-query"}-${counter}`;
-
             filename = `${path}.sql`;
         }
 
+        // 创建新文件句柄
         const draftHandle = await directory.getFileHandle(filename, {
             create: true,
         });
 
+        // 创建同步访问句柄
         const syncHandle = await draftHandle.createSyncAccessHandle();
 
+        // 将内容写入文件
         const textEncoder = new TextEncoder();
         syncHandle.write(textEncoder.encode(newfileContents));
 
+        // 确保文件被写入并同步到文件系统
         syncHandle.flush();
         syncHandle.close();
 
+        // 创建代码源对象
         const entry: CodeSource = {
             path: filename,
             kind: "CODE",
@@ -508,6 +521,15 @@ const onAddEditor = async (sessionId: string) => {
             handle: draftHandle,
         };
 
+        // 验证文件是否成功创建
+        const verifyHandle = await directory.getFileHandle(filename, {
+            create: false,
+        });
+        if (!verifyHandle) {
+            throw new Error("Failed to create file");
+        }
+
+        // 发送添加编辑器完成的消息
         postMessage({
             type: "ADD_EDITOR_COMPLETE",
             payload: entry,
@@ -515,6 +537,7 @@ const onAddEditor = async (sessionId: string) => {
 
         return entry;
     } catch (e) {
+        // 错误处理：记录错误并发送错误消息
         console.error("Error adding editor file: ", e);
         postMessage({
             type: "ADD_EDITOR_ERROR",

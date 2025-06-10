@@ -42,7 +42,7 @@ export default function Sidepanel(props: CopolitpanelProps) {
                         size="icon"
                         className="h-5 w-5"
                         onClick={() => {
-                            copolitRef?.current?.collapse();
+                            console.log(111, "<- 新增会话");
                         }}
                     >
                         <Plus size={16} />
@@ -52,7 +52,7 @@ export default function Sidepanel(props: CopolitpanelProps) {
                         size="icon"
                         className="h-5 w-5"
                         onClick={() => {
-                            copolitRef?.current?.collapse();
+                            console.log(111, "<- 会话列表");
                         }}
                     >
                         <History size={16} />

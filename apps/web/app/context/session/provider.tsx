@@ -237,7 +237,7 @@ function reducer(state: SessionState, action: Action): SessionState {
 
 const initialFileState: SessionState = {
     status: "initializing_worker",
-    sessionId: "DataWorks Copilot",
+    sessionId: "DataWorksCopilot",
     directoryHandle: null,
     editors: [],
     sources: [],

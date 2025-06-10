@@ -182,7 +182,7 @@ function CodeEditorItem(editor: CodeEditor) {
 
                             <span
                                 className={cn(
-                                    "max-w-[200px] overflow-hidden truncate text-ellipsis whitespace-nowrap font-normal",
+                                    "max-w-[150px] overflow-hidden truncate text-ellipsis whitespace-nowrap font-normal",
                                     editor.isDirty &&
                                         "text-orange-500 dark:text-yellow-500",
                                 )}
