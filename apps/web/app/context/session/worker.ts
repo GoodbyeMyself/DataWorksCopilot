@@ -470,7 +470,9 @@ const onAddEditor = async (sessionId: string) => {
 
         // find a unique name for the new file
         let counter = 0;
-        let path = "new-query";
+
+        let path = "";
+
         let filename = "new-query.sql";
 
         while (true) {
@@ -478,8 +480,11 @@ const onAddEditor = async (sessionId: string) => {
                 .getFileHandle(filename, { create: false })
                 .catch(() => null);
             if (!exists) break;
+
             counter++;
-            path = `${path}-${counter}`;
+
+            path = `${"new-query"}-${counter}`;
+
             filename = `${path}.sql`;
         }
 
