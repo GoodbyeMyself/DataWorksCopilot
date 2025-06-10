@@ -1,8 +1,13 @@
 import { PopoverAnchor, PopoverTrigger } from "@radix-ui/react-popover";
+
 import { ChevronDown, Code, Dot, Loader2, Plus } from "lucide-react";
+
 import { useState } from "react";
+
 import { toast } from "sonner";
+
 import { z } from "zod";
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -57,7 +62,7 @@ export default function EditorSources() {
 
     return (
         <div className="flex w-full flex-col">
-            <div className="flex w-full items-center justify-between">
+            <div className="sticky top-0 z-10 flex w-full items-center justify-between bg-background">
                 <div className="flex grow items-center">
                     <Button
                         onClick={onToggle}
@@ -78,10 +83,9 @@ export default function EditorSources() {
                     <SourcesToolbar />
                 </div>
             </div>
-
             <div
                 className={cn(
-                    "flex w-full flex-col space-y-1 py-1 pl-4 pr-8",
+                    "flex max-h-[calc(100vh-200px)] w-full flex-col space-y-1 overflow-y-auto py-1 pl-4 pr-8",
                     isCollapsed && "hidden",
                 )}
             >
