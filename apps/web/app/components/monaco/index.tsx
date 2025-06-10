@@ -28,6 +28,7 @@ import { useQuery } from "~/context/query/useQuery";
 
 import { cn } from "~/lib/utils";
 
+import { type ImperativePanelHandle } from "react-resizable-panels";
 import { formatSQL } from "~/utils/sql_fmt";
 import { SuggestionMaker } from "./suggestions";
 import { sqlConf, sqlDef } from "./syntax";
@@ -36,6 +37,7 @@ type EditorProps = Exclude<MonacoEditorProps, "value"> & {
     value: string;
     onSave?: (editor: editor.ICodeEditor) => Promise<void>;
     language?: string;
+    copolitRef?: React.RefObject<ImperativePanelHandle>;
 };
 
 export type EditorForwardedRef = {
@@ -505,78 +507,6 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
                             "UUID",
                             "VARBINARY",
                             "VARCHAR",
-                            "BIGINT",
-                            "BINARY",
-                            "BIT",
-                            "BITSTRING",
-                            "BLOB",
-                            "BOOL",
-                            "BOOLEAN",
-                            "BPCHAR",
-                            "BYTEA",
-                            "CHAR",
-                            "DATE",
-                            "DATETIME",
-                            "DEC",
-                            "DECIMAL",
-                            "DOUBLE",
-                            "ENUM",
-                            "FLOAT",
-                            "FLOAT4",
-                            "FLOAT8",
-                            "GUID",
-                            "HUGEINT",
-                            "INT",
-                            "INT1",
-                            "INT128",
-                            "INT16",
-                            "INT2",
-                            "INT32",
-                            "INT4",
-                            "INT64",
-                            "INT8",
-                            "INTEGER",
-                            "INTEGRAL",
-                            "INTERVAL",
-                            "LIST",
-                            "LOGICAL",
-                            "LONG",
-                            "MAP",
-                            "NULL",
-                            "NUMERIC",
-                            "NVARCHAR",
-                            "OID",
-                            "REAL",
-                            "ROW",
-                            "SHORT",
-                            "SIGNED",
-                            "SMALLINT",
-                            "STRING",
-                            "STRUCT",
-                            "TEXT",
-                            "TIME",
-                            "TIMESTAMP",
-                            "TIMESTAMPTZ",
-                            "TIMESTAMP_MS",
-                            "TIMESTAMP_NS",
-                            "TIMESTAMP_S",
-                            "TIMESTAMP_US",
-                            "TIMETZ",
-                            "TINYINT",
-                            "UBIGINT",
-                            "UHUGEINT",
-                            "UINT128",
-                            "UINT16",
-                            "UINT32",
-                            "UINT64",
-                            "UINT8",
-                            "UINTEGER",
-                            "UNION",
-                            "USMALLINT",
-                            "UTINYINT",
-                            "UUID",
-                            "VARBINARY",
-                            "VARCHAR",
                         ].map((t) => ({
                             label: t,
                             kind: languages.CompletionItemKind.Function,
@@ -680,13 +610,32 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
 
         disposables.push(
             editorRef.current.addAction({
-                id: "Generate-annotations",
-                label: "生成注释",
+                id: "Copolit",
+                label: "Copolit",
                 keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
                 contextMenuGroupId: "0_Copolit",
                 contextMenuOrder: 1,
                 run: (editor) => {
-                    console.log(editor, "<- 生成注释");
+                    if (props.copolitRef?.current?.isCollapsed()) {
+                        props.copolitRef.current?.expand();
+                        props.copolitRef.current?.resize(20);
+                    }
+                },
+            }),
+        );
+
+        disposables.push(
+            editorRef.current.addAction({
+                id: "Generate-annotations",
+                label: "生成注释",
+                keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
+                contextMenuGroupId: "1_Copolit",
+                contextMenuOrder: 1,
+                run: (editor) => {
+                    if (props.copolitRef?.current?.isCollapsed()) {
+                        props.copolitRef.current?.expand();
+                        props.copolitRef.current?.resize(20);
+                    }
                 },
             }),
         );
@@ -695,7 +644,7 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
             editorRef.current.addAction({
                 id: "Generate-SQL",
                 label: "SQL 生成",
-                contextMenuGroupId: "0_Copolit",
+                contextMenuGroupId: "1_Copolit",
                 contextMenuOrder: 2,
                 run: (editor) => {
                     console.log(editor, "<- SQL 生成");
@@ -707,7 +656,7 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
             editorRef.current.addAction({
                 id: "SQL-Error-Correction",
                 label: "SQL 纠错",
-                contextMenuGroupId: "0_Copolit",
+                contextMenuGroupId: "1_Copolit",
                 contextMenuOrder: 2,
                 run: (editor) => {
                     console.log(editor, "<- SQL 纠错");
@@ -719,7 +668,7 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
             editorRef.current.addAction({
                 id: "SQL-Rewriting",
                 label: "SQL 改写",
-                contextMenuGroupId: "0_Copolit",
+                contextMenuGroupId: "1_Copolit",
                 contextMenuOrder: 2,
                 run: (editor) => {
                     console.log(editor, "<- SQL 改写");

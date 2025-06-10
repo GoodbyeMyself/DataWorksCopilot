@@ -3,7 +3,12 @@ import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { Loader2 } from "lucide-react";
 import { Range, type editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+    Panel,
+    PanelGroup,
+    PanelResizeHandle,
+    type ImperativePanelHandle,
+} from "react-resizable-panels";
 import { useSpinDelay } from "spin-delay";
 
 import Editor from "~/components/monaco";
@@ -17,7 +22,11 @@ import { formatSQL } from "~/utils/sql_fmt";
 import ResultsView from "../result-viewer";
 import OpenFileTabs from "./components/open-files";
 
-function EditorPanel() {
+type EditorPanelProps = {
+    copolitRef?: React.RefObject<ImperativePanelHandle>;
+};
+
+function EditorPanel({ copolitRef }: EditorPanelProps) {
     return (
         <PanelGroup
             className="flex size-full flex-col"
@@ -28,7 +37,7 @@ function EditorPanel() {
                 className="flex flex-col"
             >
                 <OpenFileTabs />
-                <CurrentEditor />
+                <CurrentEditor copolitRef={copolitRef} />
             </Panel>
 
             <PanelResizeHandle
@@ -49,7 +58,7 @@ function EditorPanel() {
 
 export default EditorPanel;
 
-function CurrentEditor() {
+function CurrentEditor({ copolitRef }: EditorPanelProps) {
     const { editors, onSaveEditor, dispatch } = useSession();
     const { editorRef } = useEditor();
     const [sql, setSql] = useState("");
@@ -185,6 +194,7 @@ function CurrentEditor() {
                         bottom: 16,
                     },
                 }}
+                copolitRef={copolitRef}
             />
             {showLoader && (
                 <div className="absolute right-4 top-2 z-10">
