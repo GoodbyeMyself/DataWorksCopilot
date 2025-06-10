@@ -183,6 +183,8 @@ function RunHoverCard(props: QueryMeta) {
                         variant="outline"
                         color={cacheHit ? "green" : "blue"}
                     >
+                        {/* "live" 表示这是一个实时查询的结果，而不是从缓存中获取的结果。
+                         当查询是实时执行时，会显示绿色的样式；当查询结果来自缓存时，会显示橙色的样式。 */}
                         {cacheHit ? "CACHE" : "LIVE"}
                     </Badge>
                 </div>

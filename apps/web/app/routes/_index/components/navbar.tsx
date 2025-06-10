@@ -19,7 +19,6 @@ import {
 } from "~/components/ui/sheet";
 import { useQuery } from "~/context/query/useQuery";
 import useBreakpoint from "~/hooks/use-breakpoints";
-import { cn } from "~/lib/utils";
 import Toolbar from "./query-toolbar";
 import Settings from "./settings";
 
@@ -133,7 +132,7 @@ function QueryMeta() {
 
     return (
         <>
-            <Badge
+            {/* <Badge
                 variant="outline"
                 className={cn(
                     "border-green-300 bg-green-100 text-xs tabular-nums text-muted-foreground dark:border-green-500 dark:bg-background dark:text-green-500",
@@ -148,7 +147,7 @@ function QueryMeta() {
                 className="text-xs tabular-nums text-muted-foreground"
             >
                 {formattedTime}s
-            </Badge>
+            </Badge> */}
         </>
     );
 }
