@@ -12,23 +12,18 @@ import MonacoEditor, {
     type OnMount,
 } from "@monaco-editor/react";
 
-import {
-    type IDisposable,
-    KeyCode,
-    KeyMod,
-    Range,
-    type editor,
-    languages,
-} from "monaco-editor";
+import { type editor, type IDisposable, languages, Range } from "monaco-editor";
 
 // 右键菜单 Aciton
 import {
-    copy_as_markdown,
-    copy_as_url,
-    open_issue,
+    Copolit,
+    GenerateAnnotations,
+    GenerateSQL,
+    runSelection,
+    SQLErrorCorrection,
+    SQLRewriting,
+    validateSelection,
 } from "../editor/utils/actions";
-
-import { setupContextMenuFeature } from "./actions/setupContextMenuFeature";
 
 import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
 
@@ -57,10 +52,13 @@ export type EditorForwardedRef = {
 
 const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
     const monacoRef = useRef<Monaco | null>(null);
+
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+
     const [isReady, setIsReady] = useState(false);
 
     const { onRunQuery } = useQuery();
+
     const { db } = useDB();
 
     const [theme] = useTheme();
@@ -79,13 +77,6 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         editorRef.current = editor;
         monacoRef.current = monaco;
         setIsReady(true);
-
-        setupContextMenuFeature(editor);
-
-        // 添加右键菜单 action
-        copy_as_url(monaco);
-        copy_as_markdown(monaco);
-        open_issue(monaco);
 
         // ---------- save to local storage -------------- //
 
@@ -219,7 +210,22 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         if (!monacoRef.current) return;
         if (!isReady) return;
 
-        // SQL completion
+        // 添加右键菜单 action
+        validateSelection(monacoRef.current, onRunQuery);
+        // 添加右键菜单 action
+        runSelection(monacoRef.current, onRunQuery);
+        // 添加右键菜单 action
+        if (props.copolitRef) {
+            Copolit(monacoRef.current, props.copolitRef);
+        }
+        // 添加右键菜单 action
+        GenerateAnnotations(monacoRef.current);
+        // 添加右键菜单 action
+        GenerateSQL(monacoRef.current);
+        // 添加右键菜单 action
+        SQLErrorCorrection(monacoRef.current);
+        // 添加右键菜单 action
+        SQLRewriting(monacoRef.current);
 
         // register Monaco languages
         monacoRef.current.languages.register({
@@ -247,36 +253,11 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
 
         disposables.push(monacoRef.current.editor.createModel("sql", language));
 
-        // ----- context menu actions ------ //
-
-        // #TODO: validate selected text (investigate serialize json function).
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "validate-selection",
-                label: "Validate Selection",
-                contextMenuGroupId: "navigation",
-                contextMenuOrder: 1.5,
-                run: async (editor) => {
-                    const selection = editor.getSelection();
-
-                    const value =
-                        selection?.isEmpty() || selection == null
-                            ? editor.getValue()
-                            : editor.getModel()?.getValueInRange(selection);
-
-                    if (!value) return;
-
-                    await onRunQuery(value);
-                },
-            }),
-        );
-
         return () => {
             // biome-ignore lint/complexity/noForEach: <explanation>
             disposables.forEach((disposable) => disposable.dispose());
         };
-    }, [isReady, language, onRunQuery]);
+    }, [isReady, language, onRunQuery, props.copolitRef]);
 
     // completions
 
@@ -546,148 +527,6 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
             disposables.forEach((disposable) => disposable.dispose());
         };
     }, [db, isReady]);
-
-    // Add right-click menu run selection.
-    // I don't want to the run fn to trigger the other actions.
-
-    useEffect(() => {
-        const disposables: IDisposable[] = [];
-
-        if (!editorRef.current) return;
-        if (!monacoRef.current) return;
-        if (!isReady) return;
-
-        // right click context menu
-        disposables.push(
-            editorRef.current.addAction({
-                id: "run-selection",
-                label: "Run Selection",
-                contextMenuGroupId: "navigation",
-                contextMenuOrder: 1.5,
-                run: (editor) => {
-                    const selection = editor.getSelection();
-
-                    const value =
-                        selection?.isEmpty() || selection == null
-                            ? editor.getValue()
-                            : editor.getModel()?.getValueInRange(selection);
-
-                    if (!value) return;
-
-                    onRunQuery(value ?? "");
-                },
-            }),
-        );
-
-        // cmd + space
-        // disposables.push(
-        //     editorRef.current.addAction({
-        //         id: "run-selection",
-        //         label: "Run Selection",
-        //         keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
-        //         contextMenuGroupId: "navigation",
-        //         contextMenuOrder: 1.5,
-        //         run: async (editor) => {
-        //             const selection = editor.getSelection();
-
-        //             const value =
-        //                 selection?.isEmpty() || selection == null
-        //                     ? editor.getValue()
-        //                     : editor.getModel()?.getValueInRange(selection);
-
-        //             if (!value) return;
-
-        //             await onRunQuery(value ?? "");
-        //         },
-        //     }),
-        // );
-
-        return () => {
-            // biome-ignore lint/complexity/noForEach: <explanation>
-            disposables.forEach((disposable) => disposable.dispose());
-        };
-    }, [isReady, onRunQuery]);
-
-    // save
-    useEffect(() => {
-        const disposables: IDisposable[] = [];
-        if (!editorRef.current) return;
-        if (!monacoRef.current) return;
-        if (!isReady) return;
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "Copolit",
-                label: "Copolit",
-                keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
-                contextMenuGroupId: "0_Copolit",
-                contextMenuOrder: 1,
-                run: (editor) => {
-                    if (props.copolitRef?.current?.isCollapsed()) {
-                        props.copolitRef.current?.expand();
-                        props.copolitRef.current?.resize(20);
-                    }
-                },
-            }),
-        );
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "Generate-annotations",
-                label: "生成注释",
-                keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
-                contextMenuGroupId: "1_Copolit",
-                contextMenuOrder: 1,
-                run: (editor) => {
-                    if (props.copolitRef?.current?.isCollapsed()) {
-                        props.copolitRef.current?.expand();
-                        props.copolitRef.current?.resize(20);
-                    }
-                },
-            }),
-        );
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "Generate-SQL",
-                label: "SQL 生成",
-                contextMenuGroupId: "1_Copolit",
-                contextMenuOrder: 2,
-                run: (editor) => {
-                    console.log(editor, "<- SQL 生成");
-                },
-            }),
-        );
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "SQL-Error-Correction",
-                label: "SQL 纠错",
-                contextMenuGroupId: "1_Copolit",
-                contextMenuOrder: 2,
-                run: (editor) => {
-                    console.log(editor, "<- SQL 纠错");
-                },
-            }),
-        );
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "SQL-Rewriting",
-                label: "SQL 改写",
-                contextMenuGroupId: "1_Copolit",
-                contextMenuOrder: 2,
-                run: (editor) => {
-                    console.log(editor, "<- SQL 改写");
-                },
-            }),
-        );
-
-        return () => {
-            // biome-ignore lint/complexity/noForEach: <explanation>
-            disposables.forEach((disposable) => disposable.dispose());
-        };
-    }, [props, isReady]);
 
     useImperativeHandle(ref, () => {
         return {

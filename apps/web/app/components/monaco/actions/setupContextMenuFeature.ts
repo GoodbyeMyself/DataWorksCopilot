@@ -41,30 +41,6 @@ export const setupContextMenuFeature = (
             },
         ],
     });
-
-    addActionWithSubmenus(editor, {
-        title: "Change coordinates",
-        context: "EditorChangeCoordinatesContext",
-        group: "edit",
-        order: 1,
-        actions: [
-            {
-                id: "wgs",
-                label: "WGS",
-                run: () => console.log("wgs"),
-            },
-            {
-                id: "utc",
-                label: "UTC",
-                run: () => console.log("utc"),
-            },
-            {
-                id: "mgrs",
-                label: "MGRS",
-                run: () => console.log("mgrs"),
-            },
-        ],
-    });
 };
 
 const addActionWithSubmenus = (
