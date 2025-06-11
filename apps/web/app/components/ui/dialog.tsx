@@ -18,7 +18,7 @@ const DialogOverlay = React.forwardRef<
     <DialogPrimitive.Overlay
         ref={ref}
         className={cn(
-            "fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "fixed inset-0 z-50 bg-background/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className,
         )}
         {...props}
@@ -41,7 +41,7 @@ const DialogContent = React.forwardRef<
             {...props}
         >
             {children}
-            <DialogPrimitive.Close className="absolute right-4 top-3 rounded-sm text-white opacity-90 ring-offset-background transition-opacity hover:opacity-100 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <DialogPrimitive.Close className="absolute right-4 top-3 rounded-sm opacity-90 ring-offset-background transition-opacity hover:opacity-100 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
                 <Cross2Icon className="size-5" />
                 <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -89,7 +89,7 @@ const DialogTitle = React.forwardRef<
     <DialogPrimitive.Title
         ref={ref}
         className={cn(
-            "-mx-6 -mt-6 mb-4 border-b bg-black p-3 text-base font-semibold leading-tight tracking-tight text-white",
+            "-mx-6 -mt-6 mb-4 border-b bg-muted/50 p-3 text-base font-semibold leading-tight tracking-tight",
             className,
         )}
         {...props}

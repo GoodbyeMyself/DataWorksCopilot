@@ -21,8 +21,8 @@ export default function Sidepanel(props: CopolitpanelProps) {
     if (isCollapsed) return null;
 
     return (
-        <div className="flex h-full flex-col">
-            <div className="flex items-center justify-end border-b p-1">
+        <div className="flex h-full flex-col border-r bg-muted/50">
+            <div className="flex items-center justify-end border-b p-2">
                 <Button
                     variant="ghost"
                     size="icon"

@@ -562,27 +562,27 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         );
 
         // cmd + space
-        disposables.push(
-            editorRef.current.addAction({
-                id: "run-selection",
-                label: "Run Selection",
-                keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
-                contextMenuGroupId: "navigation",
-                contextMenuOrder: 1.5,
-                run: async (editor) => {
-                    const selection = editor.getSelection();
+        // disposables.push(
+        //     editorRef.current.addAction({
+        //         id: "run-selection",
+        //         label: "Run Selection",
+        //         keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
+        //         contextMenuGroupId: "navigation",
+        //         contextMenuOrder: 1.5,
+        //         run: async (editor) => {
+        //             const selection = editor.getSelection();
 
-                    const value =
-                        selection?.isEmpty() || selection == null
-                            ? editor.getValue()
-                            : editor.getModel()?.getValueInRange(selection);
+        //             const value =
+        //                 selection?.isEmpty() || selection == null
+        //                     ? editor.getValue()
+        //                     : editor.getModel()?.getValueInRange(selection);
 
-                    if (!value) return;
+        //             if (!value) return;
 
-                    await onRunQuery(value ?? "");
-                },
-            }),
-        );
+        //             await onRunQuery(value ?? "");
+        //         },
+        //     }),
+        // );
 
         return () => {
             // biome-ignore lint/complexity/noForEach: <explanation>
@@ -596,17 +596,6 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         if (!editorRef.current) return;
         if (!monacoRef.current) return;
         if (!isReady) return;
-
-        disposables.push(
-            editorRef.current.addAction({
-                id: "save-file",
-                label: "Save File",
-                keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
-                contextMenuGroupId: "navigation",
-                contextMenuOrder: 1.5,
-                run: props.onSave ?? (() => {}),
-            }),
-        );
 
         disposables.push(
             editorRef.current.addAction({
