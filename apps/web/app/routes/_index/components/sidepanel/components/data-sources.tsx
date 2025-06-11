@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ArrowDownToDot,
     ChevronDown,
-    CopyCheck,
     Database,
     FileDown,
     Plus,
@@ -66,6 +65,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { useDB } from "~/context/db/useDB";
+import { useEditor } from "~/context/editor/useEditor";
 import { useSession } from "~/context/session/useSession";
 import { useCopyToClipboard } from "~/hooks/use-copy-to-clipboard";
 import { cn } from "~/lib/utils";
@@ -136,6 +136,7 @@ type SourceEntry = ReturnType<typeof useSession>["sources"][number];
 function DatesetItem(props: SourceEntry) {
     const { isCopied, copyToClipboard } = useCopyToClipboard();
     const [showDelete, setShowDelete] = useState(false);
+    const { editorRef } = useEditor();
 
     const { ext, mimeType, path, handle } = props;
 
@@ -188,23 +189,25 @@ function DatesetItem(props: SourceEntry) {
         await copyToClipboard(snippet.trim());
 
         // insert into editor
-        // const editor = editorRef.current?.getEditor();
-        // if (editor) {
-        //   const selection = editor.getSelection();
+        const editor = editorRef.current?.getEditor();
 
-        //   editor.executeEdits("my-source", [
-        //     {
-        //       text: snippet,
-        //       forceMoveMarkers: false,
-        //       range: {
-        //         startLineNumber: selection?.selectionStartLineNumber || 1,
-        //         startColumn: selection?.selectionStartColumn || 1,
-        //         endLineNumber: selection?.endLineNumber || 1,
-        //         endColumn: selection?.endColumn || 1,
-        //       },
-        //     },
-        //   ]);
-        // }
+        if (editor) {
+            const selection = editor.getSelection();
+
+            editor.executeEdits("my-source", [
+                {
+                    text: snippet,
+                    forceMoveMarkers: false,
+                    range: {
+                        startLineNumber:
+                            selection?.selectionStartLineNumber || 1,
+                        startColumn: selection?.selectionStartColumn || 1,
+                        endLineNumber: selection?.endLineNumber || 1,
+                        endColumn: selection?.endColumn || 1,
+                    },
+                },
+            ]);
+        }
     };
 
     const onDownloadHandler = useCallback(async () => {
@@ -227,17 +230,24 @@ function DatesetItem(props: SourceEntry) {
             startIn: "downloads",
             suggestedName: path,
         });
+
         if (!saveHandle) return; // user cancelled
+
         try {
             const file = await handle.getFile();
+
             const writable = await saveHandle.createWritable();
+
             await writable.write(file);
+
             await writable.close();
+
             toast.success("File downloaded", {
                 description: "The file has been saved to your device.",
             });
         } catch (e) {
             console.error("Failed to download file: ", e);
+
             toast.error("Failed to download file", {
                 description: e instanceof Error ? e.message : undefined,
             });
@@ -252,21 +262,12 @@ function DatesetItem(props: SourceEntry) {
                             "flex h-6 w-full items-center justify-between gap-2 overflow-hidden p-2",
                         )}
                         variant="ghost"
-                        onClick={onCopy}
                     >
                         <div className="relative inline-flex w-full items-center gap-1">
                             <Database
                                 className={cn("mr-0.5 size-4 shrink-0")}
                             />
                             <span className="truncate font-normal">{path}</span>
-                            {isCopied && (
-                                <span className="absolute inset-y-0 right-0 top-0.5">
-                                    <CopyCheck
-                                        size={16}
-                                        className="bg-transparent text-green-700"
-                                    />
-                                </span>
-                            )}
                         </div>
                     </Button>
                 </ContextMenuTrigger>
@@ -569,8 +570,8 @@ function AddRemoteUrl(props: { onclose: () => void }) {
         ]);
 
         if (!res || res.length === 0) {
-            toast.error("Failed to add remote datasource", {
-                description: "Please try again",
+            toast.error("添加远程数据源失败", {
+                description: "请重试！",
             });
 
             return;
