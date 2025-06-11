@@ -28,7 +28,8 @@ import {
     open_issue,
 } from "../editor/utils/actions";
 
-// 语言
+import { setupContextMenuFeature } from "./actions/setupContextMenuFeature";
+
 import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
 
 import { useTheme } from "remix-themes";
@@ -78,6 +79,8 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         editorRef.current = editor;
         monacoRef.current = monaco;
         setIsReady(true);
+
+        setupContextMenuFeature(editor);
 
         // 添加右键菜单 action
         copy_as_url(monaco);
