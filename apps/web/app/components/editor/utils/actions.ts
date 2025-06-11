@@ -5,17 +5,29 @@ import type { ImperativePanelHandle } from "react-resizable-panels";
 
 // 定义所有动作的配置
 const editorActions = {
+    convertToLowerCase: {
+        id: "convert-to-lowercase",
+        label: "转换关键字为小写",
+        contextMenuGroupId: "navigation",
+        contextMenuOrder: 1,
+    },
+    convertToUpperCase: {
+        id: "convert-to-uppercase",
+        label: "转换关键字为大写",
+        contextMenuGroupId: "navigation",
+        contextMenuOrder: 2,
+    },
     validateSelection: {
         id: "validate-selection",
         label: "validate-selection",
         contextMenuGroupId: "navigation",
-        contextMenuOrder: 1,
+        contextMenuOrder: 3,
     },
     runSelection: {
         id: "run-selection",
         label: "Run Selection",
         contextMenuGroupId: "navigation",
-        contextMenuOrder: 2,
+        contextMenuOrder: 4,
     },
     Copolit: {
         id: "Copolit",
@@ -91,16 +103,63 @@ export function registerEditorActions(
         });
     }
 
+    // 转换关键字为小写
+    monaco.editor.addEditorAction({
+        ...editorActions.convertToLowerCase,
+        run: (editor) => {
+            const selection = editor.getSelection();
+            if (!selection || selection.isEmpty()) return;
+            const value = editor.getModel()?.getValueInRange(selection);
+            if (!value) return;
+            editor.executeEdits("", [
+                {
+                    range: selection,
+                    text: value.toLowerCase(),
+                    forceMoveMarkers: true,
+                },
+            ]);
+        },
+    });
+
+    // 转换关键字为大写
+    monaco.editor.addEditorAction({
+        ...editorActions.convertToUpperCase,
+        run: (editor) => {
+            const selection = editor.getSelection();
+            if (!selection || selection.isEmpty()) return;
+            const value = editor.getModel()?.getValueInRange(selection);
+            if (!value) return;
+            editor.executeEdits("", [
+                {
+                    range: selection,
+                    text: value.toUpperCase(),
+                    forceMoveMarkers: true,
+                },
+            ]);
+        },
+    });
+
     // Copolit
     if (copolitRef) {
         monaco.editor.addEditorAction({
             ...editorActions.Copolit,
             run: (editor) => {
-                console.log(editor, "<- editor");
+                const selection = editor.getSelection();
+                const selectedText =
+                    selection?.isEmpty() || selection == null
+                        ? editor.getValue()
+                        : editor.getModel()?.getValueInRange(selection);
+
                 if (copolitRef?.current?.isCollapsed()) {
                     copolitRef.current?.expand();
                     copolitRef.current?.resize(20);
                 }
+
+                // 触发自定义事件，传递选中的文本
+                const event = new CustomEvent("copolit-text-selected", {
+                    detail: { text: selectedText },
+                });
+                window.dispatchEvent(event);
             },
         });
     }
