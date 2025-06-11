@@ -15,15 +15,7 @@ import MonacoEditor, {
 import { type editor, type IDisposable, languages, Range } from "monaco-editor";
 
 // 右键菜单 Aciton
-import {
-    Copolit,
-    GenerateAnnotations,
-    GenerateSQL,
-    runSelection,
-    SQLErrorCorrection,
-    SQLRewriting,
-    validateSelection,
-} from "../editor/utils/actions";
+import { registerEditorActions } from "../editor/utils/actions";
 
 import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
 
@@ -211,21 +203,10 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         if (!isReady) return;
 
         // 添加右键菜单 action
-        validateSelection(monacoRef.current, onRunQuery);
-        // 添加右键菜单 action
-        runSelection(monacoRef.current, onRunQuery);
-        // 添加右键菜单 action
-        if (props.copolitRef) {
-            Copolit(monacoRef.current, props.copolitRef);
-        }
-        // 添加右键菜单 action
-        GenerateAnnotations(monacoRef.current);
-        // 添加右键菜单 action
-        GenerateSQL(monacoRef.current);
-        // 添加右键菜单 action
-        SQLErrorCorrection(monacoRef.current);
-        // 添加右键菜单 action
-        SQLRewriting(monacoRef.current);
+        registerEditorActions(monacoRef.current, {
+            onRunQuery,
+            copolitRef: props.copolitRef,
+        });
 
         // register Monaco languages
         monacoRef.current.languages.register({
