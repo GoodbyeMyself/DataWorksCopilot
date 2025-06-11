@@ -1,3 +1,11 @@
+import {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from "react";
+
 import MonacoEditor, {
     type Monaco,
     type EditorProps as MonacoEditorProps,
@@ -13,14 +21,15 @@ import {
     languages,
 } from "monaco-editor";
 
-import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
+// 右键菜单 Aciton
 import {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react";
+    copy_as_markdown,
+    copy_as_url,
+    open_issue,
+} from "../editor/utils/actions";
+
+// 语言
+import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
 
 import { useTheme } from "remix-themes";
 import { useDB } from "~/context/db/useDB";
@@ -30,6 +39,7 @@ import { cn } from "~/lib/utils";
 
 import { type ImperativePanelHandle } from "react-resizable-panels";
 import { formatSQL } from "~/utils/sql_fmt";
+
 import { SuggestionMaker } from "./suggestions";
 import { sqlConf, sqlDef } from "./syntax";
 
@@ -68,6 +78,11 @@ const Editor = forwardRef<EditorForwardedRef, EditorProps>((props, ref) => {
         editorRef.current = editor;
         monacoRef.current = monaco;
         setIsReady(true);
+
+        // 添加右键菜单 action
+        copy_as_url(monaco);
+        copy_as_markdown(monaco);
+        open_issue(monaco);
 
         // ---------- save to local storage -------------- //
 
