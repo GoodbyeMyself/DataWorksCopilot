@@ -13,6 +13,7 @@ import { PaginationProvider } from "~/context/pagination/provider";
 import { useQuery } from "~/context/query/useQuery";
 
 import DatasetActions from "./components/dataset-actions";
+import QueryHistory from "./components/query-history";
 
 const LazyJSONViewer = lazy(() =>
     import("./components/json-viewer").then((module) => ({
@@ -32,7 +33,7 @@ const LazyTableViewer = lazy(() =>
     })),
 );
 
-type ResultView = "table" | "chart" | "json";
+type ResultView = "table" | "chart" | "json" | "history";
 
 /**
  * Parent container for the results viewer.
@@ -57,15 +58,17 @@ export default function ResultsView() {
                 >
                     <div className="sticky inset-x-0 top-0 z-10 flex w-full justify-between bg-muted">
                         <TabsList>
-                            {["Table", "Chart", "Json"].map((value) => (
-                                <TabsTrigger
-                                    key={value}
-                                    value={value.toLowerCase()}
-                                    className="text-xs"
-                                >
-                                    {value}
-                                </TabsTrigger>
-                            ))}
+                            {["Table", "Chart", "Json", "History"].map(
+                                (value) => (
+                                    <TabsTrigger
+                                        key={value}
+                                        value={value.toLowerCase()}
+                                        className="text-xs"
+                                    >
+                                        {value}
+                                    </TabsTrigger>
+                                ),
+                            )}
                         </TabsList>
                         <div className="inline-flex items-center gap-1">
                             <DatasetActions />
@@ -105,6 +108,12 @@ export default function ResultsView() {
                         <Suspense fallback={<Fallback />}>
                             <LazyJSONViewer />
                         </Suspense>
+                    </TabsContent>
+                    <TabsContent
+                        value="history"
+                        className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
+                    >
+                        <QueryHistory />
                     </TabsContent>
                 </Tabs>
             </div>

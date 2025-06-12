@@ -8,8 +8,6 @@ import DataSources from "./components/data-sources";
 
 import EditorSources from "./components/editor-files";
 
-import QueryHistory from "./components/query-history";
-
 import ComponentWrapper from "./components/wrapper";
 
 type SidepanelProps = {
@@ -48,13 +46,6 @@ export default function Sidepanel(props: SidepanelProps) {
                 wrapperState={{ id: "data-sources", order: 2 }}
             >
                 <DataSources />
-            </ComponentWrapper>
-            <PanelHandle />
-            <ComponentWrapper
-                key="_wrapper-query-sources"
-                wrapperState={{ id: "query-history", order: 3 }}
-            >
-                <QueryHistory />
             </ComponentWrapper>
         </PanelGroup>
     );

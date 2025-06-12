@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { del, get } from "idb-keyval";
-import { ChevronDown, ChevronRight, CopyCheck, History } from "lucide-react";
+import { ChevronRight, CopyCheck, History } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
@@ -27,7 +27,6 @@ import { useQuery } from "~/context/query/useQuery";
 import { useCopyToClipboard } from "~/hooks/use-copy-to-clipboard";
 import { cn } from "~/lib/utils";
 import { queryMetaSchema, type QueryMeta } from "~/types/query";
-import { useWrapper } from "./wrapper/context/useWrapper";
 /**
  * Note: idb-keyval is probably the wrong tool for anything more advanced than this.
  * Would be better to avoid keyval and use a proper indexeddb schema.
@@ -56,22 +55,7 @@ const onGetStoredQueries = async (): Promise<QueryMeta[]> => {
 export default function QueryHistory() {
     const [runs, setRuns] = useState<QueryMeta[]>([]);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
-
-    const { isCollapsed, ref } = useWrapper();
     const { meta } = useQuery();
-
-    const onToggle = () => {
-        if (!ref.current) {
-            console.warn("No panel ref found");
-            return;
-        }
-        const isExpanded = ref.current.isExpanded();
-        if (isExpanded) {
-            ref.current.collapse();
-        } else {
-            ref.current.expand();
-        }
-    };
     const uniqueId = `${meta?.hash}_${meta?.created}`;
 
     useEffect(() => {
@@ -97,25 +81,12 @@ export default function QueryHistory() {
     };
 
     return (
-        <div className="flex h-full flex-col">
-            <div className="sticky top-0 z-10 flex w-full items-center justify-between bg-background">
+        <div className="flex h-[calc(100%-48px)] flex-col">
+            <div className="sticky top-0 z-10 flex w-full items-center justify-between bg-background p-2">
                 <div className="flex grow">
-                    <Button
-                        onClick={onToggle}
-                        variant="ghost"
-                        className="flex w-full items-center justify-start gap-1 hover:bg-transparent"
-                    >
-                        <ChevronDown
-                            className={cn(
-                                "size-5",
-                                isCollapsed &&
-                                    "-rotate-90 transition-transform",
-                            )}
-                        />
-                        <span className="text-sm font-semibold">运行记录</span>
-                    </Button>
+                    <span className="text-sm font-semibold">运行记录</span>
                 </div>
-                <div className="flex items-center gap-1 px-2">
+                <div className="flex items-center gap-1">
                     <Button
                         size="xs"
                         variant="ghost"
@@ -133,10 +104,7 @@ export default function QueryHistory() {
             )}
             <div className="flex-1 overflow-hidden">
                 <motion.div
-                    className={cn(
-                        "flex h-full w-full flex-col gap-1 divide-y divide-white/5 overflow-y-auto px-4 py-1 transition-all dark:divide-white/5",
-                        isCollapsed && "hidden",
-                    )}
+                    className="flex h-full w-full flex-col gap-1 divide-y divide-white/5 overflow-y-auto px-4 py-1 pr-2 transition-all dark:divide-white/5"
                     role="list"
                 >
                     {runs.map((run) => {
@@ -195,9 +163,8 @@ function RunHoverCard(props: QueryMeta) {
                 layout
                 key={hash}
                 className={cn(
-                    "relative flex items-center space-x-4 rounded-md px-2 py-4 transition-colors hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800",
-                    error &&
-                        "bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700",
+                    "relative mb-2 flex cursor-pointer items-center space-x-4 rounded-md bg-gray-100 px-2 py-4 transition-colors dark:bg-gray-800",
+                    error && "bg-yellow-200 dark:bg-yellow-700",
                 )}
                 onClick={() => setIsDialogOpen(true)}
             >
