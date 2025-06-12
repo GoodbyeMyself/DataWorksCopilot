@@ -107,6 +107,13 @@ export default function Sidepanel(props: CopolitpanelProps) {
                         className="h-5 w-5"
                         onClick={() => {
                             setMessages([]);
+                            setInputText("");
+                            const inputElement = document.querySelector(
+                                '[contenteditable="true"]',
+                            );
+                            if (inputElement) {
+                                inputElement.textContent = "";
+                            }
                         }}
                         title="新建会话"
                     >

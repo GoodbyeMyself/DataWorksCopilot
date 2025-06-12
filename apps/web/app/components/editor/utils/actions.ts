@@ -174,7 +174,25 @@ export function registerEditorActions(
     monaco.editor.addEditorAction({
         ...editorActions.GenerateAnnotations,
         run: (editor) => {
-            console.log(editor, "<- 生成注释");
+            const selection = editor.getSelection();
+            if (!selection || selection.isEmpty()) return;
+
+            const selectedText = editor.getModel()?.getValueInRange(selection);
+            if (!selectedText) return;
+
+            // 生成随机注释
+            const randomComment = generateRandomComment();
+
+            // 在选中文本前插入注释
+            const commentText = `-- ${randomComment}\n${selectedText}`;
+
+            editor.executeEdits("", [
+                {
+                    range: selection,
+                    text: commentText,
+                    forceMoveMarkers: true,
+                },
+            ]);
         },
     });
 
@@ -182,7 +200,21 @@ export function registerEditorActions(
     monaco.editor.addEditorAction({
         ...editorActions.GenerateSQL,
         run: (editor) => {
-            console.log(editor, "<- SQL 生成");
+            const selection = editor.getSelection();
+            const selectedText =
+                selection?.isEmpty() || selection == null
+                    ? editor.getValue()
+                    : editor.getModel()?.getValueInRange(selection);
+
+            if (copolitRef?.current?.isCollapsed()) {
+                copolitRef.current?.expand();
+                copolitRef.current?.resize(20);
+            }
+
+            const event = new CustomEvent("copolit-text-selected", {
+                detail: { text: selectedText, action: "generate-sql" },
+            });
+            window.dispatchEvent(event);
         },
     });
 
@@ -190,7 +222,21 @@ export function registerEditorActions(
     monaco.editor.addEditorAction({
         ...editorActions.SQLErrorCorrection,
         run: (editor) => {
-            console.log(editor, "<- SQL 纠错");
+            const selection = editor.getSelection();
+            const selectedText =
+                selection?.isEmpty() || selection == null
+                    ? editor.getValue()
+                    : editor.getModel()?.getValueInRange(selection);
+
+            if (copolitRef?.current?.isCollapsed()) {
+                copolitRef.current?.expand();
+                copolitRef.current?.resize(20);
+            }
+
+            const event = new CustomEvent("copolit-text-selected", {
+                detail: { text: selectedText, action: "sql-error-correction" },
+            });
+            window.dispatchEvent(event);
         },
     });
 
@@ -198,10 +244,83 @@ export function registerEditorActions(
     monaco.editor.addEditorAction({
         ...editorActions.SQLRewriting,
         run: (editor) => {
-            console.log(editor, "<- SQL 改写");
+            const selection = editor.getSelection();
+            const selectedText =
+                selection?.isEmpty() || selection == null
+                    ? editor.getValue()
+                    : editor.getModel()?.getValueInRange(selection);
+
+            if (copolitRef?.current?.isCollapsed()) {
+                copolitRef.current?.expand();
+                copolitRef.current?.resize(20);
+            }
+
+            const event = new CustomEvent("copolit-text-selected", {
+                detail: { text: selectedText, action: "sql-rewriting" },
+            });
+            window.dispatchEvent(event);
         },
     });
 
     // 在函数结束时设置标志
     isRegistered = true;
+}
+
+// 添加生成随机注释的辅助函数
+function generateRandomComment(): string {
+    const commentTemplates = [
+        "查询用户信息",
+        "统计订单数据",
+        "计算销售总额",
+        "获取最近30天数据",
+        "更新用户状态",
+        "删除过期记录",
+        "插入新用户数据",
+        "修改商品价格",
+        "导出报表数据",
+        "备份重要信息",
+        "清理临时数据",
+        "同步用户信息",
+        "验证数据完整性",
+        "优化查询性能",
+        "修复数据异常",
+        "生成月度报表",
+        "检查数据一致性",
+        "更新系统配置",
+        "处理业务逻辑",
+        "执行数据迁移",
+    ];
+
+    const prefixes = [
+        "功能：",
+        "用途：",
+        "说明：",
+        "描述：",
+        "作用：",
+        "目标：",
+        "任务：",
+        "操作：",
+        "处理：",
+        "执行：",
+    ];
+
+    const suffixes = [
+        " - 自动生成",
+        " - 系统处理",
+        " - 定时任务",
+        " - 数据维护",
+        " - 业务处理",
+        " - 数据更新",
+        " - 系统操作",
+        " - 数据同步",
+        " - 信息处理",
+        " - 数据整理",
+    ];
+
+    const template =
+        commentTemplates[Math.floor(Math.random() * commentTemplates.length)];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+
+    return `${prefix}${template}${suffix}`;
 }

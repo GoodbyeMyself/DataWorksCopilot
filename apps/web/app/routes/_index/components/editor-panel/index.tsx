@@ -212,10 +212,29 @@ function CurrentEditor({ copolitRef }: EditorPanelProps) {
                             </p>
                         </div>
                         <div className="mb-2">
-                            <p className="inline-flex cursor-pointer text-sm">
+                            <button
+                                type="button"
+                                className="inline-flex cursor-pointer border-none bg-transparent p-0 text-sm"
+                                onClick={() => {
+                                    if (copolitRef?.current?.isCollapsed()) {
+                                        copolitRef.current?.expand();
+                                        copolitRef.current?.resize(20);
+                                    }
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        if (
+                                            copolitRef?.current?.isCollapsed()
+                                        ) {
+                                            copolitRef.current?.expand();
+                                            copolitRef.current?.resize(20);
+                                        }
+                                    }
+                                }}
+                            >
                                 <FileJson className="mr-2 h-4 w-4 text-blue-500" />
                                 DataWorks Copilot 智能助手
-                            </p>
+                            </button>
                         </div>
                     </div>
                 </div>
