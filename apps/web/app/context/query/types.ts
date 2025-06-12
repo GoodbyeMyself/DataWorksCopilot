@@ -7,13 +7,15 @@ import { type QueryResponse } from "~/types/query";
  * The status in the meta is used to determine if the query was successful or not.
  */
 export type QueryState = QueryResponse & {
-  status: "IDLE" | "RUNNING";
-  sql: string;
+    status: "IDLE" | "RUNNING";
+    sql: string;
+    logs: string[];
 };
 
 export type QueryMethods = {
-  onRunQuery: (sql: string) => Promise<void>;
-  onCancelQuery: (reason: string) => void;
+    onRunQuery: (sql: string) => Promise<void>;
+    onCancelQuery: (reason: string) => void;
+    addLog: (log: string) => void;
 };
 
 export type QueryContextValue = QueryState & QueryMethods;

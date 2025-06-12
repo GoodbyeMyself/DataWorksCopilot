@@ -22,9 +22,6 @@ import Copolitpanel from "./copolitpanel";
 import EditorPanel from "./editor-panel";
 import Sidepanel from "./sidepanel";
 
-// 关于弹窗
-// import AboutModal from "./about";
-
 export default function Playground() {
     // 工作空间 区域
     const sidepanelRef = useRef<ImperativePanelHandle>(null);

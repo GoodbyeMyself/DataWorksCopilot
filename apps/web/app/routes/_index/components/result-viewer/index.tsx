@@ -14,6 +14,7 @@ import { useQuery } from "~/context/query/useQuery";
 
 import DatasetActions from "./components/dataset-actions";
 import QueryHistory from "./components/query-history";
+import QueryLog from "./components/query-log";
 
 const LazyJSONViewer = lazy(() =>
     import("./components/json-viewer").then((module) => ({
@@ -33,7 +34,7 @@ const LazyTableViewer = lazy(() =>
     })),
 );
 
-type ResultView = "table" | "chart" | "json" | "history";
+type ResultView = "table" | "chart" | "json" | "history" | "log";
 
 /**
  * Parent container for the results viewer.
@@ -58,7 +59,7 @@ export default function ResultsView() {
                 >
                     <div className="sticky inset-x-0 top-0 z-10 flex w-full justify-between bg-muted">
                         <TabsList>
-                            {["Table", "Chart", "Json", "History"].map(
+                            {["Table", "Chart", "Json", "History", "Log"].map(
                                 (value) => (
                                     <TabsTrigger
                                         key={value}
@@ -114,6 +115,12 @@ export default function ResultsView() {
                         className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
                     >
                         <QueryHistory />
+                    </TabsContent>
+                    <TabsContent
+                        value="log"
+                        className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
+                    >
+                        <QueryLog />
                     </TabsContent>
                 </Tabs>
             </div>

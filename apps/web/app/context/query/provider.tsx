@@ -7,9 +7,9 @@ import { IDB_KEYS } from "~/constants.client";
 import { useDB } from "~/context/db/useDB";
 import useAbortController from "~/hooks/use-abortable";
 import {
-  queryMetaSchema,
-  type QueryMeta,
-  type QueryResponse,
+    queryMetaSchema,
+    type QueryMeta,
+    type QueryResponse,
 } from "~/types/query";
 import { QueryContext } from "./context";
 import type { QueryContextValue, QueryState } from "./types";
@@ -19,85 +19,97 @@ type QueryProviderProps = { children: React.ReactNode };
 // Breakup everything into smaller files because of React Fast Refresh limitations.
 
 type QueryAction =
-  | {
-      type: "RUN_START";
-      payload: {
-        sql: string;
+    | {
+          type: "RUN_START";
+          payload: {
+              sql: string;
+          };
+      }
+    | {
+          type: "RUN_STOP";
+          payload: QueryResponse;
+      }
+    | {
+          type: "ADD_LOG";
+          payload: string;
       };
-    }
-  | {
-      type: "RUN_STOP";
-      payload: QueryResponse;
-    };
 
 function queryReducer(state: QueryState, action: QueryAction): QueryState {
-  switch (action.type) {
-    case "RUN_START": {
-      return {
-        ...state,
-        ...action.payload,
-        status: "RUNNING",
-      };
+    switch (action.type) {
+        case "RUN_START": {
+            return {
+                ...state,
+                ...action.payload,
+                status: "RUNNING",
+                logs: [`开始执行查询: ${action.payload.sql}`],
+            };
+        }
+        case "RUN_STOP": {
+            return {
+                ...state,
+                ...action.payload,
+                status: "IDLE",
+            };
+        }
+        case "ADD_LOG": {
+            return {
+                ...state,
+                logs: [...state.logs, action.payload],
+            };
+        }
+        default:
+            return { ...state };
     }
-    case "RUN_STOP": {
-      return {
-        ...state,
-        ...action.payload,
-        status: "IDLE",
-      };
-    }
-    default:
-      return { ...state };
-  }
 }
 
 const initialState: QueryState = {
-  sql: "",
-  status: "IDLE",
-  table: new Table(),
-  meta: null,
-  count: 0,
+    sql: "",
+    status: "IDLE",
+    table: new Table(),
+    meta: null,
+    count: 0,
+    logs: [],
 };
 
 async function onStoreRun(payload: QueryResponse) {
-  try {
-    const newRunValidation = queryMetaSchema.safeParse(payload.meta);
-    if (!newRunValidation.success) return;
+    try {
+        const newRunValidation = queryMetaSchema.safeParse(payload.meta);
+        if (!newRunValidation.success) return;
 
-    const runs: QueryMeta[] = [];
+        const runs: QueryMeta[] = [];
 
-    const history = await get(IDB_KEYS.QUERY_HISTORY);
+        const history = await get(IDB_KEYS.QUERY_HISTORY);
 
-    if (history) {
-      try {
-        const parsed = JSON.parse(history);
-        const validated = z.array(queryMetaSchema).safeParse(parsed);
-        if (validated.success) {
-          runs.push(...validated.data);
+        if (history) {
+            try {
+                const parsed = JSON.parse(history);
+                const validated = z.array(queryMetaSchema).safeParse(parsed);
+                if (validated.success) {
+                    runs.push(...validated.data);
+                }
+            } catch (e) {
+                console.error("Failed to parse query history", e);
+            }
         }
-      } catch (e) {
-        console.error("Failed to parse query history", e);
-      }
+
+        // check if the query is already in the history or if the length is greater than 100
+        const exists = runs.find(
+            (r) =>
+                r.hash === newRunValidation.data.hash &&
+                r.created === newRunValidation.data.created,
+        );
+        if (exists) return;
+
+        if (runs.length > 100) {
+            runs.pop();
+        }
+
+        const newRuns = [{ ...newRunValidation.data }, ...runs];
+
+        await set(IDB_KEYS.QUERY_HISTORY, JSON.stringify(newRuns));
+    } catch (e) {
+        console.error("Failed to save SQL run: ", e);
     }
-
-    // check if the query is already in the history or if the length is greater than 100
-    const exists = runs.find(
-      (r) =>
-        r.hash === newRunValidation.data.hash &&
-        r.created === newRunValidation.data.created,
-    );
-    if (exists) return;
-
-    if (runs.length > 100) {
-      runs.pop();
-    }
-
-    const newRuns = [{ ...newRunValidation.data }, ...runs];
-
-    await set(IDB_KEYS.QUERY_HISTORY, JSON.stringify(newRuns));
-  } catch (e) {
-    console.error("Failed to save SQL run: ", e);
-  }
 }
 
 /**
@@ -105,93 +117,107 @@ async function onStoreRun(payload: QueryResponse) {
  *
  */
 function QueryProvider(props: QueryProviderProps) {
-  const [state, dispatch] = useReducer(queryReducer, {
-    ...initialState,
-  });
+    const [state, dispatch] = useReducer(queryReducer, {
+        ...initialState,
+    });
 
-  // abort controller which we can control imperatively
-  const { abortSignal, getSignal } = useAbortController();
+    // abort controller which we can control imperatively
+    const { abortSignal, getSignal } = useAbortController();
 
-  const { db } = useDB();
+    const { db } = useDB();
 
-  const onRunQuery = useCallback(
-    async (sql: string) => {
-      if (!db) {
-        console.error("Run failed: db not ready yet");
-        toast.warning("Run failed: db not ready yet");
-        return;
-      }
+    const addLog = useCallback((log: string) => {
+        dispatch({ type: "ADD_LOG", payload: log });
+    }, []);
 
-      dispatch({ type: "RUN_START", payload: { sql } });
-      try {
-        const signal = getSignal();
-        const doQuery = db.fetchResults({ query: sql });
+    const onRunQuery = useCallback(
+        async (sql: string) => {
+            if (!db) {
+                console.error("Run failed: db not ready yet");
+                toast.warning("Run failed: db not ready yet");
+                return;
+            }
 
-        // Only a user abort will throw an error. The response contains the error message if there is one.
-        const isCancelledPromise = new Promise((_, reject) => {
-          signal.addEventListener("abort", () => {
-            reject(new DOMException("Aborted", "AbortError"));
-          });
-        });
+            dispatch({ type: "RUN_START", payload: { sql } });
+            try {
+                const signal = getSignal();
+                addLog("正在准备执行查询...");
+                const doQuery = db.fetchResults({ query: sql });
 
-        const results = await Promise.race([doQuery, isCancelledPromise]);
+                const isCancelledPromise = new Promise((_, reject) => {
+                    signal.addEventListener("abort", () => {
+                        reject(new DOMException("Aborted", "AbortError"));
+                    });
+                });
 
-        const payload = results as QueryResponse;
+                addLog("开始执行查询...");
+                const results = await Promise.race([
+                    doQuery,
+                    isCancelledPromise,
+                ]);
+                addLog("查询执行完成");
 
-        // store the query in indexeddb
-        await onStoreRun(payload);
+                const payload = results as QueryResponse;
 
-        dispatch({
-          type: "RUN_STOP",
-          payload,
-        });
-      } catch (e) {
-        if (e instanceof DOMException && e.name === "AbortError") {
-          // query was cancelled (not sure whether we should add this to the query history or not...)
-          dispatch({ type: "RUN_STOP", payload: initialState });
-          return;
-        }
-      }
-    },
-    [db, getSignal],
-  );
+                // store the query in indexeddb
+                await onStoreRun(payload);
 
-  const onCancelQuery = useCallback(
-    (reason: string) => {
-      abortSignal(reason);
-      dispatch({
-        type: "RUN_STOP",
-        payload: {
-          count: 0,
-          table: new Table(),
-          meta: {
-            cacheHit: false,
-            hash: "",
-            created: new Date().toISOString(),
-            error: null,
-            executionTime: 0,
-            sql: "",
-            status: "CANCELLED",
-          },
+                dispatch({
+                    type: "RUN_STOP",
+                    payload,
+                });
+            } catch (e) {
+                if (e instanceof DOMException && e.name === "AbortError") {
+                    addLog("查询已取消");
+                    dispatch({ type: "RUN_STOP", payload: initialState });
+                    return;
+                }
+                addLog(
+                    `查询执行出错: ${e instanceof Error ? e.message : String(e)}`,
+                );
+            }
         },
-      });
-    },
-    [abortSignal],
-  );
+        [db, getSignal, addLog],
+    );
 
-  const value: QueryContextValue = useMemo(
-    () => ({
-      ...state,
-      onRunQuery,
-      onCancelQuery,
-    }),
-    [onCancelQuery, onRunQuery, state],
-  );
-  return (
-    <QueryContext.Provider value={value}>
-      {props.children}
-    </QueryContext.Provider>
-  );
+    const onCancelQuery = useCallback(
+        (reason: string) => {
+            abortSignal(reason);
+            addLog(`查询已取消: ${reason}`);
+            dispatch({
+                type: "RUN_STOP",
+                payload: {
+                    count: 0,
+                    table: new Table(),
+                    meta: {
+                        cacheHit: false,
+                        hash: "",
+                        created: new Date().toISOString(),
+                        error: null,
+                        executionTime: 0,
+                        sql: "",
+                        status: "CANCELLED",
+                    },
+                },
+            });
+        },
+        [abortSignal, addLog],
+    );
+
+    const value: QueryContextValue = useMemo(
+        () => ({
+            ...state,
+            onRunQuery,
+            onCancelQuery,
+            addLog,
+        }),
+        [onCancelQuery, onRunQuery, state, addLog],
+    );
+    return (
+        <QueryContext.Provider value={value}>
+            {props.children}
+        </QueryContext.Provider>
+    );
 }
 
 export { QueryProvider };

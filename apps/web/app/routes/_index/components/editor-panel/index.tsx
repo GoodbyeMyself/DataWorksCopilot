@@ -1,14 +1,20 @@
 import type { OnChange } from "@monaco-editor/react";
+
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
+
 import { FileJson, Loader2, LoaderPinwheel, NotepadText } from "lucide-react";
+
 import { Range, type editor } from "monaco-editor";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
     Panel,
     PanelGroup,
     PanelResizeHandle,
     type ImperativePanelHandle,
 } from "react-resizable-panels";
+
 import { useSpinDelay } from "spin-delay";
 
 import Editor from "~/components/monaco";
@@ -18,6 +24,7 @@ import { useEditor } from "~/context/editor/useEditor";
 import { useSession } from "~/context/session/useSession";
 
 import { cn } from "~/lib/utils";
+
 import { formatSQL } from "~/utils/sql_fmt";
 import ResultsView from "../result-viewer";
 import OpenFileTabs from "./components/open-files";
@@ -33,14 +40,13 @@ function EditorPanel({ copolitRef }: EditorPanelProps) {
             direction="vertical"
         >
             <Panel
-                defaultSize={70}
+                defaultSize={60}
                 minSize={10}
                 className="flex flex-col"
             >
                 <OpenFileTabs />
                 <CurrentEditor copolitRef={copolitRef} />
             </Panel>
-
             <PanelResizeHandle
                 className={cn(
                     "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90",
@@ -51,8 +57,8 @@ function EditorPanel({ copolitRef }: EditorPanelProps) {
                 </div>
             </PanelResizeHandle>
             <Panel
-                defaultSize={30}
-                minSize={30}
+                defaultSize={40}
+                minSize={20}
             >
                 <ResultsView />
             </Panel>

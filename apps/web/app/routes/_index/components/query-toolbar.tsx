@@ -1,5 +1,6 @@
 import { Button } from "~/components/ui/button";
 
+import { useLocalStorage } from "@uidotdev/usehooks";
 import { ChevronDown, Play } from "lucide-react";
 import { useCallback, useState, type MouseEventHandler } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -25,6 +26,9 @@ import { useQuery } from "~/context/query/useQuery";
 export default function Toolbar() {
     const { status, onCancelQuery, onRunQuery } = useQuery();
     const { editorRef } = useEditor();
+    const [, setTab] = useLocalStorage<
+        "table" | "chart" | "json" | "history" | "log"
+    >(`results-viewer-tab`, `table`);
 
     // run the whole file contents rather than the selected text;
     // Don't wait;
@@ -63,12 +67,14 @@ export default function Toolbar() {
             .filter((line) => !line.trim().startsWith("--"))
             .join("\n");
 
+        // Switch to log tab before running query
+        setTab("log");
         await onRunQuery(cleanedQuery);
 
         return () => {
             controller.abort();
         };
-    }, [editorRef, onCancelQuery, onRunQuery]);
+    }, [editorRef, onCancelQuery, onRunQuery, setTab]);
 
     useHotkeys(
         "mod+enter",
@@ -199,7 +205,7 @@ function Exporter(props: ExporterProps) {
 
             setIsExporting(true);
 
-            let downloadUrl: string | undefined; // need to release the object URL after the download
+            let downloadUrl: string | undefined;
 
             toast.info("Exporting data...", {
                 description: `Your data is being exported in the background`,
@@ -290,7 +296,7 @@ function Exporter(props: ExporterProps) {
     );
     return (
         <MenubarItem
-            disabled={disabled}
+            disabled={disabled || isExporting}
             onSelect={async () => await onExport(ext)}
         >
             <span className="mr-2">{ext}</span>
