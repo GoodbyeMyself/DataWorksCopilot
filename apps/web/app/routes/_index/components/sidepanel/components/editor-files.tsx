@@ -4,6 +4,7 @@ import {
     ChevronDown,
     Code,
     Dot,
+    FileText,
     FolderPen,
     Loader2,
     PanelLeftOpen,
@@ -98,12 +99,19 @@ export default function EditorSources() {
                     isCollapsed && "hidden",
                 )}
             >
-                {editors.map((editor) => (
-                    <CodeEditorItem
-                        key={editor.path}
-                        {...editor}
-                    />
-                ))}
+                {editors.length === 0 ? (
+                    <div className="flex min-h-[200px] w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <FileText className="size-6" />
+                        <p className="text-sm">暂无可编辑的文件</p>
+                    </div>
+                ) : (
+                    editors.map((editor) => (
+                        <CodeEditorItem
+                            key={editor.path}
+                            {...editor}
+                        />
+                    ))
+                )}
             </div>
         </div>
     );
