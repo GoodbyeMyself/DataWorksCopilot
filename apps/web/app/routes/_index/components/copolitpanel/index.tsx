@@ -35,10 +35,45 @@ type CopolitpanelProps = {
  * NB: This panel controls the vertical resizing *within* the sidepanel.
  * The horizontal resizing between the side panel and the editor panel is in the parent panel.
  */
+
+// 添加打字机效果组件
+function TypewriterText({ text }: { text: string }) {
+    const [displayText, setDisplayText] = useState("");
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        if (currentIndex < text.length) {
+            const timer = setTimeout(() => {
+                setDisplayText((prev) => prev + text[currentIndex]);
+                setCurrentIndex((prev) => prev + 1);
+            }, 50); // 每个字符的延迟时间
+            return () => clearTimeout(timer);
+        }
+    }, [currentIndex, text]);
+
+    return <>{displayText}</>;
+}
+
+// 添加思考状态组件
+function ThinkingIndicator() {
+    const [dots, setDots] = useState("");
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+        }, 500);
+        return () => clearInterval(timer);
+    }, []);
+
+    return <span className="text-muted-foreground">思考中{dots}</span>;
+}
+
 export default function Sidepanel(props: CopolitpanelProps) {
     const { isCollapsed, copolitRef } = props;
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState("");
+    const [isThinking, setIsThinking] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     useEffect(() => {
         const handleTextSelected = (event: CustomEvent<{ text: string }>) => {
@@ -69,7 +104,7 @@ export default function Sidepanel(props: CopolitpanelProps) {
     }, []);
 
     const handleSendMessage = () => {
-        if (!inputText.trim()) return;
+        if (!inputText.trim() || isSending) return;
 
         const newMessage: Message = {
             id: Date.now().toString(),
@@ -80,6 +115,21 @@ export default function Sidepanel(props: CopolitpanelProps) {
 
         setMessages((prev) => [...prev, newMessage]);
         setInputText("");
+        setIsSending(true);
+        setIsThinking(true);
+
+        // 模拟大模型回复
+        setTimeout(() => {
+            setIsThinking(false);
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                content: `这是一个模拟的大模型回复。您刚才说："${inputText}"\n\n我可以帮您：\n1. 分析SQL语句\n2. 优化查询性能\n3. 提供数据建议\n4. 解答技术问题`,
+                role: "assistant",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
+            setIsSending(false);
+        }, 1000);
     };
 
     if (isCollapsed) return null;
@@ -194,7 +244,7 @@ export default function Sidepanel(props: CopolitpanelProps) {
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 {messages.map((message) => (
                                     <div
                                         key={message.id}
@@ -204,17 +254,69 @@ export default function Sidepanel(props: CopolitpanelProps) {
                                                 : "justify-start"
                                         }`}
                                     >
-                                        <div
-                                            className={`max-w-[80%] rounded-lg p-3 ${
-                                                message.role === "user"
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "bg-muted"
-                                            }`}
-                                        >
-                                            {message.content}
+                                        <div className="flex max-w-[85%] items-start gap-1.5">
+                                            {message.role === "assistant" && (
+                                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary">
+                                                    <span className="text-xs font-bold text-primary-foreground">
+                                                        D
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="flex flex-col">
+                                                <div
+                                                    className={`rounded-lg p-2 ${
+                                                        message.role === "user"
+                                                            ? "bg-primary text-xs leading-4 text-primary-foreground"
+                                                            : "bg-muted text-sm leading-5"
+                                                    }`}
+                                                >
+                                                    {message.role ===
+                                                    "assistant" ? (
+                                                        <TypewriterText
+                                                            text={
+                                                                message.content
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        message.content
+                                                    )}
+                                                </div>
+                                                <span className="mt-0.5 text-[10px] text-muted-foreground">
+                                                    {message.timestamp.toLocaleTimeString(
+                                                        "zh-CN",
+                                                        {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        },
+                                                    )}
+                                                </span>
+                                            </div>
+                                            {message.role === "user" && (
+                                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
+                                                    <span className="text-xs font-bold text-muted-foreground">
+                                                        我
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
+                                {isThinking && (
+                                    <div className="flex justify-start">
+                                        <div className="flex max-w-[85%] items-start gap-1.5">
+                                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary">
+                                                <span className="text-xs font-bold text-primary-foreground">
+                                                    D
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="rounded-lg bg-muted p-2 text-sm leading-5">
+                                                    <ThinkingIndicator />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -279,10 +381,23 @@ export default function Sidepanel(props: CopolitpanelProps) {
                                 </div>
                                 <Button
                                     onClick={handleSendMessage}
-                                    disabled={!inputText.trim()}
-                                    className="h-8 px-4 py-1 text-xs"
+                                    disabled={!inputText.trim() || isSending}
+                                    className={cn(
+                                        "h-8 px-4 py-1 text-xs",
+                                        isSending && "opacity-50",
+                                    )}
                                 >
-                                    发送 <Send className="ml-2 h-3 w-3" />
+                                    {isSending ? (
+                                        <>
+                                            <LoaderPinwheel className="mr-2 h-3 w-3 animate-spin" />
+                                            发送中
+                                        </>
+                                    ) : (
+                                        <>
+                                            发送{" "}
+                                            <Send className="ml-2 h-3 w-3" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </div>
