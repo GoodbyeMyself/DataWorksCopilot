@@ -1,6 +1,6 @@
 import type { OnChange } from "@monaco-editor/react";
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
-import { Loader2 } from "lucide-react";
+import { FileJson, Loader2, LoaderPinwheel, NotepadText } from "lucide-react";
 import { Range, type editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -170,8 +170,45 @@ function CurrentEditor({ copolitRef }: EditorPanelProps) {
 
     if (!currentEditor) {
         return (
-            <div className="flex h-full items-center justify-center text-gray-400">
-                No file selected
+            <div className="flex h-full flex-col items-start justify-start gap-12 bg-gradient-to-b from-background to-muted/20 px-16 pt-12">
+                <div className="max-w-2xl text-left">
+                    <h1 className="mb-2 text-4xl font-bold text-foreground">
+                        DataWorks Copilot
+                    </h1>
+                    <p className="text-lg text-muted-foreground">
+                        您的智能数据开发助手
+                    </p>
+                </div>
+                <div className="grid grid-cols-2 gap-24">
+                    <div>
+                        <h3 className="mb-4 text-xl font-semibold text-foreground transition-colors">
+                            大数据体验
+                        </h3>
+                        <p className="inline-flex cursor-pointer text-sm">
+                            <LoaderPinwheel className="mr-2 h-4 w-4 text-blue-500" />
+                            <span className="text-blue-500">
+                                探索 DataWorks Galley 的强大功能
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <h3 className="mb-4 text-xl font-semibold text-foreground transition-colors">
+                            演练
+                        </h3>
+                        <div className="mb-2">
+                            <p className="inline-flex cursor-pointer text-sm">
+                                <NotepadText className="mr-2 h-4 w-4 text-yellow-500" />
+                                DataWorks Notebook 交互式开发
+                            </p>
+                        </div>
+                        <div className="mb-2">
+                            <p className="inline-flex cursor-pointer text-sm">
+                                <FileJson className="mr-2 h-4 w-4 text-blue-500" />
+                                DataWorks Copilot 智能助手
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
