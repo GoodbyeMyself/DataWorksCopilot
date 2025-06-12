@@ -34,7 +34,15 @@ const LazyTableViewer = lazy(() =>
     })),
 );
 
-type ResultView = "table" | "chart" | "json" | "history" | "log";
+type ResultView = "table" | "chart" | "json" | "history" | "log" | "error";
+
+const TAB_LABELS = {
+    Table: "数据表",
+    Chart: "Chart 图表",
+    Json: "JSON",
+    History: "运行记录",
+    Log: "日志",
+} as const;
 
 /**
  * Parent container for the results viewer.
@@ -66,26 +74,26 @@ export default function ResultsView() {
                                         value={value.toLowerCase()}
                                         className="text-xs"
                                     >
-                                        {value}
+                                        {
+                                            TAB_LABELS[
+                                                value as keyof typeof TAB_LABELS
+                                            ]
+                                        }
                                     </TabsTrigger>
                                 ),
+                            )}
+                            {error && (
+                                <TabsTrigger value="error">
+                                    <span className="text-xs text-red-500">
+                                        Error
+                                    </span>
+                                </TabsTrigger>
                             )}
                         </TabsList>
                         <div className="inline-flex items-center gap-1">
                             <DatasetActions />
                         </div>
                     </div>
-                    {error && (
-                        <div className="w-full px-4 py-10">
-                            <div className="mx-auto w-full">
-                                {error && (
-                                    <ErrorNotification
-                                        error={error ?? "Unknown error"}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    )}
                     <TabsContent
                         value="table"
                         className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
@@ -118,10 +126,24 @@ export default function ResultsView() {
                     </TabsContent>
                     <TabsContent
                         value="log"
-                        className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
+                        className="h-[calc(100%-50px)] flex-col border-none p-0 px-2 data-[state=active]:flex"
                     >
                         <QueryLog />
                     </TabsContent>
+                    {error && (
+                        <TabsContent
+                            value="error"
+                            className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
+                        >
+                            <div className="w-full px-4 py-4">
+                                <div className="mx-auto w-full">
+                                    <ErrorNotification
+                                        error={error ?? "Unknown error"}
+                                    />
+                                </div>
+                            </div>
+                        </TabsContent>
+                    )}
                 </Tabs>
             </div>
         </PaginationProvider>

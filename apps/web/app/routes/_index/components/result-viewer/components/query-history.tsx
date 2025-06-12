@@ -84,7 +84,7 @@ export default function QueryHistory() {
         <div className="flex h-[calc(100%-48px)] flex-col">
             <div className="sticky top-0 z-10 flex w-full items-center justify-between bg-background p-2">
                 <div className="flex grow">
-                    <span className="text-sm font-semibold">运行记录</span>
+                    <span className="text-sm font-semibold"></span>
                 </div>
                 <div className="flex items-center gap-1">
                     <Button
