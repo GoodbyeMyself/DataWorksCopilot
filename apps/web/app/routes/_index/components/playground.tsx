@@ -107,7 +107,7 @@ export default function Playground() {
                     collapsedSize={0}
                     collapsible
                     defaultSize={0}
-                    minSize={0}
+                    minSize={25}
                     className="max-h-full"
                     onCollapse={() => setCopolitIsOpen(false)}
                     onExpand={() => setCopolitIsOpen(true)}

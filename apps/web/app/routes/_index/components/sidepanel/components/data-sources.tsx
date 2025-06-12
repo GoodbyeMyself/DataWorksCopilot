@@ -6,6 +6,7 @@ import {
     ChevronDown,
     Database,
     FileDown,
+    Inbox,
     Plus,
     ShieldEllipsis,
     Trash2,
@@ -120,12 +121,20 @@ export default function DataSources() {
                     isCollapsed && "hidden",
                 )}
             >
-                {sources.map((source) => (
-                    <DatesetItem
-                        key={source.path}
-                        {...source}
-                    />
-                ))}
+                {sources.length === 0 ? (
+                    <div className="flex h-[200px] w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <Inbox className="size-12" />
+                        <p className="text-sm">暂无数据源</p>
+                        <p className="text-xs">点击上方的 + 按钮添加数据源</p>
+                    </div>
+                ) : (
+                    sources.map((source) => (
+                        <DatesetItem
+                            key={source.path}
+                            {...source}
+                        />
+                    ))
+                )}
             </div>
         </div>
     );
@@ -481,7 +490,7 @@ function SourcesToolbar() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                    className="w-56"
+                    className="w-36"
                     // prevent focus going back to the trigger on close.
                     onCloseAutoFocus={(e) => e.preventDefault()}
                 >
