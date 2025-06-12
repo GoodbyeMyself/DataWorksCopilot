@@ -63,6 +63,9 @@ const editorActions = {
     },
 } as const;
 
+// 添加静态标志来跟踪是否已经注册过
+let isRegistered = false;
+
 // 集中处理所有动作的函数
 export function registerEditorActions(
     monaco: Monaco,
@@ -71,6 +74,9 @@ export function registerEditorActions(
         copolitRef?: React.RefObject<ImperativePanelHandle>;
     } = {},
 ) {
+    // 如果已经注册过，直接返回
+    if (isRegistered) return;
+
     const { onRunQuery, copolitRef } = options;
 
     // 验证选择
@@ -195,4 +201,7 @@ export function registerEditorActions(
             console.log(editor, "<- SQL 改写");
         },
     });
+
+    // 在函数结束时设置标志
+    isRegistered = true;
 }

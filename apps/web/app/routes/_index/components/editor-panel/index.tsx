@@ -64,9 +64,13 @@ export default EditorPanel;
 
 function CurrentEditor({ copolitRef }: EditorPanelProps) {
     const { editors, onSaveEditor, dispatch } = useSession();
+
     const { editorRef } = useEditor();
+
     const [sql, setSql] = useState("");
+
     const [isReady, setIsReady] = useState(false);
+
     const [isSaving, setIsSaving] = useState(false);
 
     const { shouldFormat } = useEditorSettings();
