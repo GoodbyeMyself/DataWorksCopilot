@@ -1,8 +1,6 @@
-import { useLocalStorage } from "@uidotdev/usehooks";
-
 import { Loader2 } from "lucide-react";
 
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 
 import ErrorNotification from "~/components/error";
 
@@ -48,20 +46,51 @@ const TAB_LABELS = {
  * Parent container for the results viewer.
  */
 export default function ResultsView() {
-    const [tab, setTab] = useLocalStorage<ResultView>(
-        `results-viewer-tab`,
-        `table`,
-    );
-
-    const { meta } = useQuery();
+    const [tab, setTab] = useState<ResultView>("table");
+    const [showErrorTab, setShowErrorTab] = useState(false);
+    const { meta, status, sql } = useQuery();
     const error = meta?.error;
+    const prevErrorRef = useRef(error);
+    const prevStatusRef = useRef(status);
+
+    /**
+     * @description: 页签逻辑： 查询初始时，切换到日志页签，并隐藏上一次的错误页签，若成功切换到 数据表查看， 若失败 切换到 error 页签查看错误日志
+     * @author: M.yunlong
+     * @date: 2025-06-12 16:08:39
+     */
+    useEffect(() => {
+        if (status === "RUNNING" && prevStatusRef.current !== "RUNNING") {
+            // --
+            setTab("log");
+            // --
+            prevErrorRef.current = null;
+            // --
+            setShowErrorTab(false);
+        } else if (status === "IDLE" && prevStatusRef.current === "RUNNING") {
+            if (error) {
+                // --
+                setShowErrorTab(true);
+                // --
+                setTab("error");
+            } else {
+                setTab("table");
+            }
+        }
+
+        prevStatusRef.current = status;
+
+        prevErrorRef.current = error;
+    }, [status, error, sql, tab]);
 
     return (
         <PaginationProvider>
             <div className="relative size-full max-w-full">
                 <Tabs
                     value={tab}
-                    onValueChange={(v) => setTab(v as ResultView)}
+                    onValueChange={(v) => {
+                        console.log("Tab manually changed to:", v);
+                        setTab(v as ResultView);
+                    }}
                     defaultValue="table"
                     className="size-full"
                 >
@@ -82,7 +111,7 @@ export default function ResultsView() {
                                     </TabsTrigger>
                                 ),
                             )}
-                            {error && (
+                            {showErrorTab && (
                                 <TabsTrigger value="error">
                                     <span className="text-xs text-red-500">
                                         Error
@@ -130,7 +159,7 @@ export default function ResultsView() {
                     >
                         <QueryLog />
                     </TabsContent>
-                    {error && (
+                    {showErrorTab && (
                         <TabsContent
                             value="error"
                             className="h-full flex-col border-none p-0 px-2 data-[state=active]:flex"
