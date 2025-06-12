@@ -668,12 +668,31 @@ function SessionProvider({ children }: SessionProviderProps) {
                 }
             }
 
+            // 获取当前打开的文件列表
+            const openEditors = session.editors.filter(
+                (e) => e.isOpen && e.path !== path,
+            );
+
             dispatch({
                 type: "CLOSE_EDITOR",
                 payload: {
                     path,
                 },
             });
+
+            // 如果还有其他打开的文件，自动切换到最后一个打开的文件
+            if (openEditors.length > 0) {
+                const lastOpenEditor = openEditors[openEditors.length - 1];
+                if (lastOpenEditor) {
+                    // 添加额外的类型检查
+                    dispatch({
+                        type: "FOCUS_EDITOR",
+                        payload: {
+                            path: lastOpenEditor.path,
+                        },
+                    });
+                }
+            }
         },
         [session.editors, session.sessionId],
     );
