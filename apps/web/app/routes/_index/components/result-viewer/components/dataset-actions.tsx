@@ -44,6 +44,7 @@ export default function DatasetActions() {
     const { meta } = useQuery();
 
     const lastRunSQL = meta?.sql;
+
     // WIP
     const onExport = useCallback(
         async (format: "CSV" | "PARQUET" | "JSON" | "ARROW") => {
@@ -59,6 +60,7 @@ export default function DatasetActions() {
 
                 // // remove any trailing whitespace and newlines
                 const cleanSQL = unformatSQL(lastRunSQL);
+
                 const queries = cleanSQL
                     .split(";")
                     .filter((query) => query.trim().length);
@@ -67,8 +69,8 @@ export default function DatasetActions() {
                 const selectQuery = queries[queries.length - 1];
 
                 if (!selectQuery) {
-                    throw new Error("No query to export", {
-                        cause: `The last query executed was: ${selectQuery}`,
+                    throw new Error("没有要导出的查询", {
+                        cause: `最后执行的查询是 : ${selectQuery}`,
                     });
                 }
 
@@ -89,6 +91,7 @@ export default function DatasetActions() {
                 if (!sql) return;
 
                 await db.query(sql);
+
                 const _db = await db._getDB();
 
                 const buffer = await _db.copyFileToBuffer(
@@ -105,18 +108,16 @@ export default function DatasetActions() {
 
                 a.click();
 
-                toast.success("Data exported successfully", {
-                    description: `Your data has been exported as ${format.toLowerCase()}`,
+                toast.success("数据导出成功", {
+                    description: `您的数据已导出为 ${format.toLowerCase()}`,
                 });
 
                 await _db.dropFile(`output.${format.toLowerCase()}`);
             } catch (e) {
-                console.error("Failed to export data: ", e);
-                toast.error("Failed to export data", {
+                console.error("无法导出数据: ", e);
+                toast.error("无法导出数据", {
                     description:
-                        e instanceof Error
-                            ? e.message
-                            : "Something went wrong. Please try again.",
+                        e instanceof Error ? e.message : "出现错误，请重试.",
                 });
             } finally {
                 if (downloadUrl) URL.revokeObjectURL(downloadUrl);
@@ -131,7 +132,8 @@ export default function DatasetActions() {
             <DropdownMenuTrigger asChild>
                 <Button
                     size="icon"
-                    variant="outline"
+                    variant="ghost"
+                    className="focus-visible:ring-0 focus-visible:ring-offset-0"
                 >
                     <MoreVertical size={16} />
                 </Button>
@@ -171,9 +173,6 @@ export default function DatasetActions() {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem disabled>
                                     Arrow
-                                </DropdownMenuItem>
-                                <DropdownMenuItem disabled>
-                                    DuckDB
                                 </DropdownMenuItem>
                                 <DropdownMenuItem disabled>
                                     Copy

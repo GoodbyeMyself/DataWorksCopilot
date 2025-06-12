@@ -105,7 +105,7 @@ export default function Playground() {
                 >
                     <EditorPanel copolitRef={copolitRef} />
                 </Panel>
-                <PanelHandle />
+                {copolitIsOpen && <PanelHandle />}
                 <Panel
                     collapsedSize={0}
                     collapsible
