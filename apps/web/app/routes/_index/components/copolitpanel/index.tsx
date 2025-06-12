@@ -1,8 +1,21 @@
 import { useEffect, useState } from "react";
-import { type ImperativePanelHandle } from "react-resizable-panels";
+import {
+    type ImperativePanelHandle,
+    Panel,
+    PanelGroup,
+    PanelResizeHandle,
+} from "react-resizable-panels";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 // icon
-import { History, Plus, Send, X } from "lucide-react";
+import {
+    GripVertical,
+    History,
+    LoaderPinwheel,
+    Plus,
+    Send,
+    X,
+} from "lucide-react";
 
 type Message = {
     id: string;
@@ -29,7 +42,17 @@ export default function Sidepanel(props: CopolitpanelProps) {
 
     useEffect(() => {
         const handleTextSelected = (event: CustomEvent<{ text: string }>) => {
-            setInputText(event.detail.text);
+            const newText = event.detail.text;
+            const inputElement = document.querySelector(
+                '[contenteditable="true"]',
+            );
+            if (inputElement) {
+                const currentText = inputElement.textContent || "";
+                inputElement.textContent = currentText
+                    ? `${currentText}\n${newText}`
+                    : newText;
+                setInputText(inputElement.textContent);
+            }
         };
 
         window.addEventListener(
@@ -85,6 +108,7 @@ export default function Sidepanel(props: CopolitpanelProps) {
                         onClick={() => {
                             setMessages([]);
                         }}
+                        title="新建会话"
                     >
                         <Plus size={16} />
                     </Button>
@@ -95,134 +119,169 @@ export default function Sidepanel(props: CopolitpanelProps) {
                         onClick={() => {
                             console.log(111, "<- 会话列表");
                         }}
+                        title="会话列表"
                     >
                         <History size={16} />
                     </Button>
                 </div>
             </div>
-
-            {/* 对话列表区域或欢迎界面 */}
-            <div className="flex-1 overflow-y-auto p-4">
-                {messages.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center p-4 text-center">
-                        {/* DataWorks Copilot 标志占位符 */}
-                        <div className="mb-4">
-                            <div
-                                className="flex h-24 w-24 items-center justify-center rounded-full"
-                                style={{
-                                    background:
-                                        "linear-gradient(to right, #4CAF50, #8BC34A)",
-                                }}
-                            >
-                                <span className="text-lg font-bold text-white">
-                                    C
-                                </span>
-                            </div>
-                        </div>
-                        <h2 className="mb-2 text-xl font-semibold">
-                            DataWorks Copilot
-                        </h2>
-                        <p className="mb-6 text-sm text-muted-foreground">
-                            DataWorks
-                            Copilot是DataWorks的智能助手，能够通过自然语言快速完成多种代码和DataWorks产品操作，它可以辅助您轻松、高效地完成数据ETL和分析工作，节省大量时间和精力。
-                        </p>
-                        <div className="grid w-full max-w-sm grid-cols-2 gap-3">
-                            <Button
-                                variant="outline"
-                                className="justify-start text-sm"
-                            >
-                                / 代码生成
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="justify-start text-sm"
-                            >
-                                / 代码解释
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="justify-start text-sm"
-                            >
-                                / 代码问答
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="justify-start text-sm"
-                            >
-                                / 快捷找表
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`flex ${
-                                    message.role === "user"
-                                        ? "justify-end"
-                                        : "justify-start"
-                                }`}
-                            >
-                                <div
-                                    className={`max-w-[80%] rounded-lg p-3 ${
-                                        message.role === "user"
-                                            ? "bg-primary text-primary-foreground"
-                                            : "bg-muted"
-                                    }`}
-                                >
-                                    {message.content}
+            <PanelGroup
+                direction="vertical"
+                className="flex-1"
+            >
+                <Panel
+                    defaultSize={80}
+                    minSize={40}
+                >
+                    <div className="h-full overflow-y-auto p-4">
+                        {messages.length === 0 ? (
+                            <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+                                {/* DataWorks Copilot 标志占位符 */}
+                                <div className="mb-2">
+                                    <div
+                                        className="flex h-16 w-16 items-center justify-center rounded-full"
+                                        style={{
+                                            background:
+                                                "linear-gradient(to right, #4CAF50, #8BC34A)",
+                                        }}
+                                    >
+                                        <span className="text-base font-bold text-white">
+                                            D
+                                        </span>
+                                    </div>
+                                </div>
+                                <h2 className="mb-8 text-xl font-semibold">
+                                    DataWorks Copilot
+                                </h2>
+                                <p className="mb-6 text-sm text-muted-foreground">
+                                    DataWorks Copilot 智能助手,
+                                    能够通过自然语言快速完成多种代码和DataWorks产品操作,
+                                    它可以辅助您轻松、高效地完成数据 ETL 和
+                                    分析工作， 节省大量时间和精力。
+                                </p>
+                                <div className="flex flex-col items-center gap-3">
+                                    <Button
+                                        variant="outline"
+                                        className="w-auto text-xs"
+                                    >
+                                        / SQL生成
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="w-auto text-xs"
+                                    >
+                                        / SQL注释
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="w-auto text-xs"
+                                    >
+                                        / SQL纠错
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="w-auto text-xs"
+                                    >
+                                        / 快捷找表
+                                    </Button>
                                 </div>
                             </div>
-                        ))}
+                        ) : (
+                            <div className="space-y-4">
+                                {messages.map((message) => (
+                                    <div
+                                        key={message.id}
+                                        className={`flex ${
+                                            message.role === "user"
+                                                ? "justify-end"
+                                                : "justify-start"
+                                        }`}
+                                    >
+                                        <div
+                                            className={`max-w-[80%] rounded-lg p-3 ${
+                                                message.role === "user"
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "bg-muted"
+                                            }`}
+                                        >
+                                            {message.content}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </Panel>
 
-            {/* 输入框区域 */}
-            <div className="border-t p-2">
-                <div className="flex flex-col gap-2">
-                    <textarea
-                        className="max-h-[120px] min-h-[40px] flex-1 resize-none rounded-md border bg-background p-2"
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        placeholder="“@”添加表，“/”选择意图"
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSendMessage();
-                            }
-                        }}
-                    />
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="ghost"
-                                className="h-8 px-3 py-1 text-xs"
-                            >
-                                <Plus
-                                    size={12}
-                                    className="mr-1"
-                                />{" "}
-                                添加上下文
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                className="h-8 px-3 py-1 text-xs"
-                            >
-                                默认模型 <span className="ml-1">▾</span>
-                            </Button>
-                        </div>
-                        <Button
-                            onClick={handleSendMessage}
-                            disabled={!inputText.trim()}
-                            className="h-8 px-4 py-1 text-xs"
-                        >
-                            发送 <Send className="ml-2 h-3 w-3" />
-                        </Button>
+                <PanelResizeHandle
+                    className={cn(
+                        "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90",
+                    )}
+                >
+                    <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
+                        <GripVertical className="size-2.5" />
                     </div>
-                </div>
-            </div>
+                </PanelResizeHandle>
+                <Panel
+                    defaultSize={20}
+                    minSize={20}
+                >
+                    <div className="h-full border-t bg-muted/90 p-2">
+                        <div className="flex h-full flex-col">
+                            <div className="min-h-0 flex-1">
+                                <div
+                                    contentEditable
+                                    role="textbox"
+                                    aria-multiline="true"
+                                    aria-label="消息输入框"
+                                    tabIndex={0}
+                                    className="h-full w-full resize-none overflow-y-auto rounded-md border bg-background/90 p-2 text-xs leading-6 tracking-wide outline-none transition-colors empty:before:text-muted-foreground empty:before:content-[attr(data-placeholder)] hover:bg-background focus:bg-background"
+                                    data-placeholder='"@"添加表，"/"选择意图'
+                                    onInput={(e) =>
+                                        setInputText(
+                                            e.currentTarget.textContent || "",
+                                        )
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendMessage();
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        className="h-8 px-3 py-1 text-xs"
+                                    >
+                                        <Plus
+                                            size={12}
+                                            className="mr-1"
+                                        />{" "}
+                                        添加上下文
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        className="h-8 px-3 py-1 text-xs"
+                                    >
+                                        <LoaderPinwheel className="mr-1 h-4 w-4 text-blue-500" />
+                                        默认模型 <span className="ml-1">▾</span>
+                                    </Button>
+                                </div>
+                                <Button
+                                    onClick={handleSendMessage}
+                                    disabled={!inputText.trim()}
+                                    className="h-8 px-4 py-1 text-xs"
+                                >
+                                    发送 <Send className="ml-2 h-3 w-3" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </Panel>
+            </PanelGroup>
         </div>
     );
 }
